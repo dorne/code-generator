@@ -10,3 +10,8 @@ window.addEventListener('DOMContentLoaded', () => {
     replaceText(`${type}-version`, process.versions[type])
   }
 })
+
+// 暴露electron
+global.electron = require('electron');
+window.ipcRenderer = require('electron').ipcRenderer;
+window.remote = require('electron').remote;

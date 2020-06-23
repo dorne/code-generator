@@ -2,8 +2,18 @@ import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 
-class App extends React.Component{
-  render(){
+class App extends React.Component {
+  handleClick(e) {
+    //alert('click');
+    if (window.electron) {
+      const { dialog } = window.remote;
+      dialog.showErrorBox('提示', '支持electron');
+    }else{
+      alert('不支持electron');
+    }
+  }
+
+  render() {
     return (
       <div className="App">
         <header className="App-header">
@@ -20,9 +30,10 @@ class App extends React.Component{
             Learn React
           </a>
           <p>
+            <button onClick={this.handleClick}>btn</button>
             We are using Node.js
-            <span id="node-version"></span>, Chromium <span id="chrome-version"></span>, and Electron{' '}
-            <span id="electron-version"></span>.
+            <span id="node-version"></span>, Chromium <span id="chrome-version"></span>, and
+            Electron <span id="electron-version"></span>.
           </p>
         </header>
       </div>
