@@ -8,11 +8,20 @@
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
+    "@types/node": "^14.0.13",
     "cross-env": "^7.0.2",
     "electron-is-dev": "^1.2.0",
+    "mongodb": "^3.5.9",
+    "mssql": "^6.2.0",
+    "mysql": "^2.18.1",
+    "oracledb": "^4.2.0",
+    "pg": "^8.2.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-scripts": "3.4.1"
+    "react-scripts": "3.4.1",
+    "reflect-metadata": "^0.1.13",
+    "sqlite3": "^4.2.0",
+    "typeorm": "^0.2.25"
   },
   "scripts": {
     "react-start": "react-scripts start",
