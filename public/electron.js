@@ -12,6 +12,9 @@ function createWindow () {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 650,
+    // useContentSize: true,
+    // titleBarStyle: 'hidden',
+    // frame: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js')
     }

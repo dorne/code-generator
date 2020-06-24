@@ -12,4 +12,7 @@ window.addEventListener('DOMContentLoaded', () => {
 })
 
 // 暴露electron
-global.electron = require('electron');
+global.dorne_code_gen = {
+  process_versions : process.versions,
+  electron: require('electron')
+}
