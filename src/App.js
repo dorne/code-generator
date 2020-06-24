@@ -6,8 +6,8 @@ class App extends React.Component {
   handleClick(e) {
     //alert('click');
     if (window.electron) {
-      const { dialog } = window.remote;
-      window.remote.getCurrentWindow().setSize(2000, 1000)
+      const { dialog } = window.electron.remote;
+      window.electron.remote.getCurrentWindow().setSize(2000, 1000)
       dialog.showErrorBox('提示', '支持electron');
     }else{
       alert('不支持electron');
