@@ -1,19 +1,46 @@
-const { Sequelize } = require('sequelize');
-
-exports.testConnection = async function () {
-  const sequelize = new Sequelize('postgres://user:pass@example.com:5432/dbname'); // Postgres 示例
+/***
+ * 测试连接
+ */
+exports.testConnection = async function (uri) {
+  console.log('sqlite testConnection');
+  /*global dorne_code_gen*/
+  /*eslint no-undef: "error"*/
+  const sequelize = new dorne_code_gen.Sequelize(uri);
+  let res = 'Unable to connect to the database';
   try {
     await sequelize.authenticate();
-    console.log('Connection has been established successfully.');
+    res = null;
   } catch (error) {
-    console.error('Unable to connect to the database:', error);
+    res = error;
+    sequelize.close();
   }
+  return res;
 };
 
-exports.getTables = function () {
-  console.log('sqlite getTables');
+/***
+ * 获取表
+ */
+exports.getTables = async function (uri) {
+  const sequelize = new dorne_code_gen.Sequelize(uri);
+  
+  const tables = await sequelize.query(
+    `SELECT name as name, tbl_name as comment FROM sqlite_master where type='table' order by name`,
+    { type: sequelize.QueryTypes.SELECT },
+  );
+  sequelize.close();
+  return tables;
 };
 
-exports.getColumns = function () {
-  console.log('sqlite getColumns');
+/***
+ * 获取列
+ */
+exports.getColumns = async function (uri, table) {
+  const sequelize = new dorne_code_gen.Sequelize(uri);
+  
+  const columns = await sequelize.query(
+    `SELECT * FROM PRAGMA_TABLE_INFO('${table}');`,
+    { type: sequelize.QueryTypes.SELECT },
+  );
+  sequelize.close();
+  return columns;
 };

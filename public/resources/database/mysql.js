@@ -26,6 +26,14 @@ exports.getTables = async function (uri) {
   return tables;
 };
 
-exports.getColumns = function () {
-  console.log('mysql getColumns');
+exports.getColumns = async function (uri, table) {
+  const sequelize = new dorne_code_gen.Sequelize(uri);
+  let db = uri.split('/');
+  db = db[db.length - 1];
+
+  const tables = await sequelize.query(
+    `SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='${db}' AND TABLE_NAME='${table}';`,
+    { type: sequelize.QueryTypes.SELECT },
+  );
+  return tables;
 };
