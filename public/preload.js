@@ -20,5 +20,9 @@ global.dorne_code_gen = {
   path: require('path'),
   os: require('os'),
   vm: require('vm'),
-  http: require('http')
+  http: require('http'),
+  Sequelize: require('sequelize'),
+  db: function(db){
+    return require('/Users/Dorne/code-generator/database/'+db);
+  }
 };

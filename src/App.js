@@ -18,7 +18,6 @@ class App extends React.Component {
       console.log(app.getPath('module'));
       console.log(app.getPath('temp'));
 
-
       window.dorne_code_gen['sqlite'].a();
       const { dialog } = remote;
       remote.getCurrentWindow().setSize(2000, 1000);
@@ -27,6 +26,16 @@ class App extends React.Component {
       dialog.showErrorBox('提示', '支持electron');
     } else {
       alert('不支持electron');
+    }
+  }
+
+  async sqlClick(e) {
+    let db = window.dorne_code_gen.db('mysql');
+    let test = await db.testConnection();
+    if (test == null) {
+      alert('连接成功');
+    } else {
+      alert('连接失败: '+test);
     }
   }
 
@@ -46,8 +55,12 @@ class App extends React.Component {
         </Tooltip>
 
         <Tooltip title="search">
-          <Button type="primary">
-            模版引擎
+          <Button type="primary">模版引擎</Button>
+        </Tooltip>
+
+        <Tooltip title="search">
+          <Button type="primary" onClick={this.sqlClick}>
+            数据库
           </Button>
         </Tooltip>
       </div>
