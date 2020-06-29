@@ -31,12 +31,15 @@ class App extends React.Component {
 
   async sqlClick(e) {
     let db = window.dorne_code_gen.db('mysql');
-    let test = await db.testConnection();
+    let test = await db.testConnection('');
     if (test == null) {
       alert('连接成功');
     } else {
       alert('连接失败: '+test);
     }
+
+    let tables = await db.getTables('');
+    console.log(tables);
   }
 
   render() {
