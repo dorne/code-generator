@@ -16,20 +16,9 @@ global.dorne_code_gen = {
   process_versions: process.versions,
   electron: require('electron'),
   template: require('art-template'),
-  sqlite: {
-    a: function () {
-      alert('sqlite a');
-    },
-    b: function () {
-      alert('sqlite b');
-    },
-  },
-  mysql: {
-    a: function () {
-      alert('mysql a');
-    },
-    b: function () {
-      alert('mysql b');
-    },
-  },
+  fs: require('fs'),
+  path: require('path'),
+  os: require('os'),
+  vm: require('vm'),
+  http: require('http')
 };
