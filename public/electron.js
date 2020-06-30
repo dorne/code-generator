@@ -16,7 +16,9 @@ function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 1200,
-    height: 650,
+    height: 1000,
+    minWidth: 1200,
+    minHeight: 1000,
     // useContentSize: true,
     // titleBarStyle: 'hidden',
     // frame: false,
@@ -39,6 +41,10 @@ function createWindow() {
     // when you should delete the corresponding element.
     mainWindow = null;
   });
+
+  // mainWindow.on('resize', function (e) {
+  //   console.log(mainWindow.getContentBounds());
+  // });
 }
 
 // This method will be called when Electron has finished
