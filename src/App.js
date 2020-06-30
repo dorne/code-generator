@@ -1,125 +1,38 @@
 import React from 'react';
 import './App.css';
 
-import { Layout, Menu, Breadcrumb, Table, Tag, Space, Button } from 'antd';
+import { Layout, Menu, Breadcrumb, Table, Space, Button } from 'antd';
 const { Header, Content, Footer } = Layout;
 
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      data: [
-        {
-          key: '1',
-          name: 'John Brown',
-          age: 32,
-          address: 'New York No. 1 Lake Park',
-          tags: ['nice', 'developer'],
-        },
-        {
-          key: '2',
-          name: 'Jim Green',
-          age: 42,
-          address: 'London No. 1 Lake Park',
-          tags: ['loser'],
-        },
-        {
-          key: '3',
-          name: 'Joe Black',
-          age: 32,
-          address: 'Sidney No. 1 Lake Park',
-          tags: ['cool', 'teacher'],
-        },
-        {
-          key: '4',
-          name: 'Joe Black',
-          age: 32,
-          address: 'Sidney No. 1 Lake Park',
-          tags: ['cool', 'teacher'],
-        },
-        {
-          key: '4',
-          name: 'Joe Black',
-          age: 32,
-          address: 'Sidney No. 1 Lake Park',
-          tags: ['cool', 'teacher'],
-        },
-        {
-          key: '4',
-          name: 'Joe Black',
-          age: 32,
-          address: 'Sidney No. 1 Lake Park',
-          tags: ['cool', 'teacher'],
-        },
-        {
-          key: '4',
-          name: 'Joe Black',
-          age: 32,
-          address: 'Sidney No. 1 Lake Park',
-          tags: ['cool', 'teacher'],
-        },
-        {
-          key: '5',
-          name: 'Joe Black',
-          age: 32,
-          address: 'Sidney No. 1 Lake Park',
-          tags: ['cool', 'teacher'],
-        },
-        {
-          key: '6',
-          name: 'Joe Black',
-          age: 32,
-          address: 'Sidney No. 1 Lake Park',
-          tags: ['cool', 'teacher'],
-        }
-      ]
+      tableData: [],
+      pk: 'folderName',
     };
   }
 
-  columns() {
+  tableColumns() {
     return [
       {
-        title: 'Name',
-        dataIndex: 'name',
-        key: 'name',
-        render: text => <a>{text}</a>,
+        title: 'folderName',
+        dataIndex: 'folderName',
+        key: 'folderName',
       },
-      {
-        title: 'Age',
-        dataIndex: 'age',
-        key: 'age',
-      },
+
       {
         title: 'Address',
-        dataIndex: 'address',
-        key: 'address',
-      },
-      {
-        title: 'Tags',
-        key: 'tags',
-        dataIndex: 'tags',
-        render: tags => (
-          <>
-            {tags.map(tag => {
-              let color = tag.length > 5 ? 'geekblue' : 'green';
-              if (tag === 'loser') {
-                color = 'volcano';
-              }
-              return (
-                <Tag color={color} key={tag}>
-                  {tag.toUpperCase()}
-                </Tag>
-              );
-            })}
-          </>
-        ),
+        dataIndex: 'json',
+        key: 'json',
+        render: record => record.name,
       },
       {
         title: 'Action',
-        key: 'action',
-        render: (text, record) => (
+        key: 'operation',
+        render: record => (
           <Space size="middle">
-            <a>Invite {record.name}</a>
+            <a>Invite {record.folderName}</a>
             <a>Delete</a>
           </Space>
         ),
@@ -127,11 +40,14 @@ class App extends React.Component {
     ];
   }
 
-  testClick(e){
-    /*global dorne_code_gen*/
+  componentDidMount() {
+    console.log('componentDidMount');
+    console.log(dorne_code_gen.appUtils.getProjectList());
+    this.setState({
+      /*global dorne_code_gen*/
     /*eslint no-undef: "error"*/
-    let arr = dorne_code_gen.appUtils.getProjectList();
-    console.log(arr);
+      tableData: dorne_code_gen.appUtils.getProjectList(),
+    });
   }
 
   render() {
@@ -152,16 +68,19 @@ class App extends React.Component {
           </Breadcrumb>
           <div className="site-layout-background" style={{ padding: 24, minHeight: 790 }}>
             <Table
+              rowKey={record => {
+                return record[this.state.pk];
+              }}
               pagination={{
                 showQuickJumper: true,
                 showSizeChanger: true,
-                defaultPageSize: 3,
+                defaultPageSize: 10,
                 defaultCurrent: 1,
               }}
-              columns={this.columns()}
-              dataSource={this.state.data}
+              bordered
+              columns={this.tableColumns()}
+              dataSource={this.state.tableData}
             />
-            <Button type="primary" onClick={this.testClick}>test</Button> 
           </div>
         </Content>
         <Footer style={{ textAlign: 'center' }}>Ant Design ©2018 Created by Ant UED</Footer>
