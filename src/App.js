@@ -4,11 +4,12 @@ import { Button, Tooltip, Tag } from 'antd';
 
 class App extends React.Component {
   handleClick(e) {
-    //alert('click');
-    const electron = window.dorne_code_gen.electron;
+    /*global dorne_code_gen*/
+    /*eslint no-undef: "error"*/
+    const electron = dorne_code_gen.electron;
     const remote = electron.remote;
     const app = remote.app;
-    
+
     if (electron) {
       //常用地址
       console.log(app.getPath('home'));
@@ -29,21 +30,37 @@ class App extends React.Component {
     }
   }
 
-  async sqlClick(e) {
- 
-    let uri = '';
+  tplClick(e) {
+    var source = dorne_code_gen.fs.readFileSync(
+      dorne_code_gen.templatePath('test/test.art'),
+      'utf8',
+    );
 
-    let db = window.dorne_code_gen.db('mysql');
+    var html = dorne_code_gen.artTemplate().render(source, {
+      user: {
+        name: 'admin_user_order_gift',
+      },
+    });
+
+    console.log(html);
+  }
+
+  async sqlClick(e) {
+    let uri = '';
+    let database = 'sqlite';
+    let tableName = 'item';
+
+    let db = window.dorne_code_gen.db(database);
     let test = await db.testConnection(uri);
     if (test == null) {
-      alert('连接成功');
+      console.log('连接成功');
     } else {
-      alert('连接失败: '+test);
+      console.log('连接失败: ' + test);
     }
 
     let tables = await db.getTables(uri);
     console.log(tables);
-     let columns = await db.getColumns(uri, 'yt_admin');
+    let columns = await db.getColumns(uri, tableName);
     console.log(columns);
 
     // let db = window.dorne_code_gen.db('sqlite');
@@ -82,6 +99,12 @@ class App extends React.Component {
         <Tooltip title="search">
           <Button type="primary" onClick={this.sqlClick}>
             数据库
+          </Button>
+        </Tooltip>
+
+        <Tooltip title="search">
+          <Button type="primary" onClick={this.tplClick}>
+            模版
           </Button>
         </Tooltip>
       </div>

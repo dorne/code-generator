@@ -1,0 +1,3 @@
+{{if user}}
+  {{user.name | underline2hump | first2upper}}
+{{/if}}
