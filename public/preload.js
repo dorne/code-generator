@@ -26,5 +26,6 @@ global.dorne_code_gen = {
   vm: require('vm'),
   http: require('http'),
   Sequelize: require('sequelize'),
+  rmdir: require('rmdir'),
   appUtils: require('./utils/appUtils'),
 };

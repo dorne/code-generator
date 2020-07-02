@@ -3,7 +3,8 @@ import './App.css';
 
 import sd from 'silly-datetime';
 
-import { Layout, Menu, Breadcrumb, Table, Space, Popconfirm, message, Button } from 'antd';
+import { Layout, Menu, Breadcrumb, Table, Space, Popconfirm, message, Button, Tooltip } from 'antd';
+import { DeleteOutlined, PlusOutlined, SettingOutlined, ReloadOutlined } from '@ant-design/icons';
 const { Header, Content, Footer } = Layout;
 
 class App extends React.Component {
@@ -12,11 +13,21 @@ class App extends React.Component {
     this.state = {
       tableData: [],
       pk: 'folderName',
+      selectedRowloading: false,
+      selectedRowKeys: [],
       tableColumns: [
         {
           title: '排序',
           key: 'sortCode',
-          render: record => {return record.json.sortCode},
+          width: 80,
+          // defaultSortOrder: 'ascend',
+          defaultSortOrder: 'descend',
+          sorter: (a, b) => {
+            return a.json.sortCode - b.json.sortCode;
+          },
+          render: record => {
+            return record.json.sortCode;
+          },
         },
         {
           title: '项目名',
@@ -25,7 +36,7 @@ class App extends React.Component {
           render: record => record.name,
         },
         {
-          title: '文件',
+          title: '文件夹',
           dataIndex: 'folderName',
           key: 'folderName',
         },
@@ -37,29 +48,51 @@ class App extends React.Component {
         {
           title: '创建时间',
           key: 'createTime',
-          render: record => {return record.json.createTime},
+          defaultSortOrder: '',
+          sorter: (a, b) => {
+            return a.json.createTime - b.json.createTime;
+          },
+          render: record => {
+            return record.json.createTime;
+          },
         },
         {
           title: '修改时间',
           key: 'updateTime',
-          render: record => {return record.json.updateTime},
+          defaultSortOrder: '',
+          sorter: (a, b) => {
+            return a.json.updateTime - b.json.updateTime;
+          },
+          render: record => {
+            return record.json.updateTime;
+          },
         },
         {
           title: '操作',
+          align: 'center',
           key: 'operation',
+          width: 30,
           render: record => (
             <Space size="middle">
-              <Button type="link">查看</Button>
+              <Tooltip title="配置">
+                <Button type="primary" shape="circle" icon={<SettingOutlined />} size="small" />
+              </Tooltip>
               <Popconfirm
                 placement="topRight"
-                title={'你确定要删除项目吗?'}
-                onConfirm={this.confirm}
+                title={`你确定要删除[${record.json.name}]项目吗?`}
+                onConfirm={this.tableDelRow.bind(this, record)}
                 okText="删除"
                 cancelText="取消"
               >
-                <Button type="link" danger>
-                  删除
-                </Button>
+                <Tooltip title="删除">
+                  <Button
+                    danger
+                    type="primary"
+                    shape="circle"
+                    icon={<DeleteOutlined />}
+                    size="small"
+                  />
+                </Tooltip>
               </Popconfirm>
             </Space>
           ),
@@ -68,9 +101,66 @@ class App extends React.Component {
     };
   }
 
-  confirm() {
-    message.success('选择了删除');
-  }
+  /***
+   * table删除单行
+   */
+  tableDelRow = (record, e) => {
+    const p = this;
+    dorne_code_gen.rmdir(record.folderPath, function (err, dirs, files) {
+      console.log('all files are removed');
+      message.success(`[${record.json.name}]删除成功`);
+      p.setState({
+        tableData: dorne_code_gen.appUtils.getProjectList(),
+      });
+    });
+  };
+
+  /***
+   * table删除选中行
+   */
+  tableDelSelectRow = async () => {
+    const p = this;
+    p.setState({
+      selectedRowloading: true
+    });
+    const selectRow = this.state.tableData.filter(item =>
+      this.state.selectedRowKeys.includes(item.folderName),
+    );
+
+    await selectRow.forEach(element => {
+      dorne_code_gen.rmdir(element.folderPath, function (err, dirs, files) {
+        p.setState({
+          tableData: dorne_code_gen.appUtils.getProjectList(),
+        });
+      });
+    });
+
+    setTimeout(() => {
+      message.success(`[${this.state.selectedRowKeys.length}个]项目已删除成功`);
+      this.setState({
+        selectedRowloading: false,
+        selectedRowKeys: []
+      });
+    }, 500);
+  };
+
+  /**
+   * table选中行
+   * @param {Array} selectedRowKeys 
+   */
+  onSelectChange = selectedRowKeys => {
+    console.log('selectedRowKeys changed: ', selectedRowKeys);
+    this.setState({ selectedRowKeys });
+  };
+
+  /***
+   * table刷新
+   */
+  tableReload = e => {
+    this.setState({
+      tableData: dorne_code_gen.appUtils.getProjectList(),
+    });
+  };
 
   componentDidMount() {
     console.log('componentDidMount');
@@ -84,10 +174,16 @@ class App extends React.Component {
   }
 
   render() {
+    const { selectedRowKeys } = this.state;
+    const rowSelection = {
+      selectedRowKeys,
+      onChange: this.onSelectChange,
+    };
+    const hasSelected = selectedRowKeys.length > 0;
     return (
       <Layout>
         <Header style={{ position: 'fixed', zIndex: 1, width: '100%' }}>
-          <div className="logo logo-text">多恩代码生成器</div>
+          <div className="logo logo-text">code-generator</div>
           <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['1']}>
             <Menu.Item key="1">项目</Menu.Item>
             <Menu.Item key="2">设置</Menu.Item>
@@ -100,7 +196,26 @@ class App extends React.Component {
             <Breadcrumb.Item>项目</Breadcrumb.Item>
           </Breadcrumb>
           <div className="site-layout-background" style={{ padding: 24, minHeight: 790 }}>
+            <Space style={{ marginBottom: 16 }}>
+              <Button type="primary" icon={<PlusOutlined />}>
+                添加
+              </Button>
+              <Button
+                onClick={this.tableDelSelectRow}
+                type="primary"
+                danger
+                icon={<DeleteOutlined />}
+                disabled={!hasSelected}
+                loading={this.state.selectedRowloading}
+              >
+                删除
+              </Button>
+              <Button onClick={this.tableReload} icon={<ReloadOutlined />}>
+                刷新
+              </Button>
+            </Space>
             <Table
+              rowSelection={rowSelection}
               rowKey={record => {
                 return record[this.state.pk];
               }}
