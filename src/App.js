@@ -14,6 +14,7 @@ class App extends React.Component {
       tableData: [],
       pk: 'folderName',
       selectedRowloading: false,
+      tableReloadloading: false,
       selectedRowKeys: [],
       tableColumns: [
         {
@@ -121,7 +122,7 @@ class App extends React.Component {
   tableDelSelectRow = async () => {
     const p = this;
     p.setState({
-      selectedRowloading: true
+      selectedRowloading: true,
     });
     const selectRow = this.state.tableData.filter(item =>
       this.state.selectedRowKeys.includes(item.folderName),
@@ -139,14 +140,14 @@ class App extends React.Component {
       message.success(`[${this.state.selectedRowKeys.length}个]项目已删除成功`);
       this.setState({
         selectedRowloading: false,
-        selectedRowKeys: []
+        selectedRowKeys: [],
       });
     }, 500);
   };
 
   /**
    * table选中行
-   * @param {Array} selectedRowKeys 
+   * @param {Array} selectedRowKeys
    */
   onSelectChange = selectedRowKeys => {
     console.log('selectedRowKeys changed: ', selectedRowKeys);
@@ -159,7 +160,16 @@ class App extends React.Component {
   tableReload = e => {
     this.setState({
       tableData: dorne_code_gen.appUtils.getProjectList(),
+      tableReloadloading: true,
     });
+
+    setTimeout(() => {
+      message.success(`刷新成功`);
+      this.setState({
+        tableReloadloading: false,
+      });
+    }, 500);
+   
   };
 
   componentDidMount() {
@@ -210,7 +220,7 @@ class App extends React.Component {
               >
                 删除
               </Button>
-              <Button onClick={this.tableReload} icon={<ReloadOutlined />}>
+              <Button onClick={this.tableReload} icon={<ReloadOutlined />} loading={this.state.tableReloadloading}>
                 刷新
               </Button>
             </Space>
