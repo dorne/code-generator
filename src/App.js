@@ -79,8 +79,8 @@ class App extends React.Component {
                 <Button type="primary" shape="circle" icon={<SettingOutlined />} size="small" />
               </Tooltip>
               <Popconfirm
-                placement="topRight"
-                title={`你确定要删除[${record.json.name}]项目吗?`}
+                placement="bottomRight"
+                title={`确定要删除[${record.json.name}]项目吗?`}
                 onConfirm={this.tableDelRow.bind(this, record)}
                 okText="删除"
                 cancelText="取消"
@@ -169,7 +169,6 @@ class App extends React.Component {
         tableReloadloading: false,
       });
     }, 500);
-   
   };
 
   componentDidMount() {
@@ -210,17 +209,29 @@ class App extends React.Component {
               <Button type="primary" icon={<PlusOutlined />}>
                 添加
               </Button>
-              <Button
-                onClick={this.tableDelSelectRow}
-                type="primary"
-                danger
-                icon={<DeleteOutlined />}
-                disabled={!hasSelected}
-                loading={this.state.selectedRowloading}
+
+              <Popconfirm
+                placement="bottomRight"
+                title={`确认要删除[${this.state.selectedRowKeys.length}个]项目吗?`}
+                onConfirm={this.tableDelSelectRow.bind(this)}
+                okText="删除"
+                cancelText="取消"
               >
-                删除
-              </Button>
-              <Button onClick={this.tableReload} icon={<ReloadOutlined />} loading={this.state.tableReloadloading}>
+                <Button
+                  type="primary"
+                  danger
+                  icon={<DeleteOutlined />}
+                  disabled={!hasSelected}
+                  loading={this.state.selectedRowloading}
+                >
+                  删除
+                </Button>
+              </Popconfirm>
+              <Button
+                onClick={this.tableReload}
+                icon={<ReloadOutlined />}
+                loading={this.state.tableReloadloading}
+              >
                 刷新
               </Button>
             </Space>
