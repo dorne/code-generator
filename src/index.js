@@ -7,9 +7,13 @@ import * as serviceWorker from './serviceWorker';
 import { ConfigProvider } from 'antd';
 import zhCN from 'antd/es/locale/zh_CN';
 
+import { BrowserRouter as Router } from 'react-router-dom';
+
 ReactDOM.render(
   <ConfigProvider locale={zhCN}>
-    <App />
+    <Router>
+      <App />
+    </Router>
   </ConfigProvider>,
   document.getElementById('root'),
 );
