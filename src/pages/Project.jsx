@@ -2,7 +2,7 @@ import React from 'react';
 
 import sd from 'silly-datetime';
 
-import { Layout, Table, Space, Popconfirm, message, Button, Tooltip } from 'antd';
+import { Table, Space, Popconfirm, message, Button, Tooltip } from 'antd';
 import { DeleteOutlined, PlusOutlined, SettingOutlined, ReloadOutlined } from '@ant-design/icons';
 
 class Project extends React.Component {
