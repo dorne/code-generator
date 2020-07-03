@@ -9,6 +9,10 @@ import About from './pages/About';
 
 import { NavLink, Route, Switch, withRouter } from 'react-router-dom';
 
+import { connect } from 'react-redux';
+import * as counterActions from './actions/counter';
+import { bindActionCreators } from 'redux';
+
 const { Header, Content, Footer } = Layout;
 
 class App extends React.Component {
@@ -61,6 +65,21 @@ class App extends React.Component {
               <Route path="/settings/:id" component={Settings}></Route>
               <Route path="/about" component={About}></Route>
             </Switch>
+            {this.props.counter}
+            <button
+              onClick={() => {
+                this.props.counterActions.increment(20);
+              }}
+            >
+              +
+            </button>
+            <button
+              onClick={() => {
+                this.props.counterActions.decrement(10);
+              }}
+            >
+              -
+            </button>
           </div>
         </Content>
         <Footer style={{ textAlign: 'center' }}>Ant Design ©2018 Created by Ant UED</Footer>
@@ -69,4 +88,18 @@ class App extends React.Component {
   }
 }
 
-export default withRouter(App);
+const mapStateToProps = state => {
+  return {
+    counter: state.counter,
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    counterActions: bindActionCreators(counterActions, dispatch),
+  };
+};
+
+const _withRouter = withRouter(App);
+
+export default connect(mapStateToProps, mapDispatchToProps)(_withRouter);
