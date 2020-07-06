@@ -36,6 +36,9 @@ class App extends React.Component {
     console.log('app render');
     console.log(this.props);
     console.log('app end render');
+
+    const match = this.props.globalProps.match.hasOwnProperty('params') ? JSON.stringify(this.props.globalProps.match.params) : '无参数';
+
     return (
       <Layout>
         <Header style={{ position: 'fixed', zIndex: 1, width: '100%' }}>
@@ -68,18 +71,18 @@ class App extends React.Component {
               <Route path="/settings/:id" component={Settings}></Route>
               <Route path="/about" component={About}></Route>
             </Switch>
-            {this.props.globalProps.___location.path}
-            {this.props.globalProps.___counter}
+            {match}
+            {this.props.globalProps.counter}
             <button
               onClick={() => {
-                this.props.globaActions.counterActions.increment(20);
+                this.props.globalActions.counterActions.increment(20);
               }}
             >
               +
             </button>
             <button
               onClick={() => {
-                this.props.globaActions.counterActions.decrement(10);
+                this.props.globalActions.counterActions.decrement(10);
               }}
             >
               -

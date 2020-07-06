@@ -1,7 +1,7 @@
 import React from 'react';
 
 import * as counterActions from '../actions/counter';
-import * as locationActions from '../actions/location';
+import * as matchActions from '../actions/match';
 import { bindActionCreators } from 'redux';
 import { connect as reduxConnect } from 'react-redux';
 
@@ -15,14 +15,7 @@ export function HOC(WrappedComponent) {
     }
 
     componentDidMount() {
-      let newProps = {};
-
-      console.log('---------');
-      console.log(this.props);
-      console.log('---------');
-
-      this.setState({ newProps: newProps });
-      this.props.globaActions.locationActions.add({});
+      this.props.globalActions.matchActions.add({});
 
       if (this.props !== undefined && JSON.stringify(this.props) !== '{}') {
         if (this.props.match !== undefined && JSON.stringify(this.props.match) !== '{}') {
@@ -30,14 +23,7 @@ export function HOC(WrappedComponent) {
             this.props.match.params !== undefined &&
             JSON.stringify(this.props.match.params) !== '{}'
           ) {
-            newProps = {
-              wangdun: this.props.match,
-            };
-            this.setState({ newProps: newProps });
-            this.props.globaActions.locationActions.add(this.props.match);
-            console.log('-----1----');
-            console.log(this.props);
-            console.log('-----1----');
+            this.props.globalActions.matchActions.add(this.props.match);
           }
         }
       }
@@ -56,19 +42,19 @@ export function HOC(WrappedComponent) {
 export function connect(WrappedComponent) {
   const mapStateToProps = state => {
     return {
-      globalProps : {
-        ___counter: state.counter,
-        ___location: state.location,
-      }
+      globalProps: {
+        counter: state.counter,
+        match: state.match,
+      },
     };
   };
 
   const mapDispatchToProps = dispatch => {
     return {
-      globaActions:{
+      globalActions: {
         counterActions: bindActionCreators(counterActions, dispatch),
-        locationActions: bindActionCreators(locationActions, dispatch),
-      }
+        matchActions: bindActionCreators(matchActions, dispatch),
+      },
     };
   };
 

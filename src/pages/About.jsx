@@ -5,7 +5,8 @@ import {HOC, connect} from '../components/tools'
 class About extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+    };
   }
 
   componentDidMount() {
@@ -20,7 +21,7 @@ class About extends React.Component {
     console.log('About end render');
     return (
       <div>
-        about
+        about {this.state.abouut}
       </div>
     );
   }

@@ -1,10 +1,10 @@
 import counter from './counter'
-import location from './location'
+import match from './match'
 import { combineReducers } from 'redux'
 
 const rootReducers = combineReducers({
     counter,
-    location
+    match
 })
 
 export default rootReducers
