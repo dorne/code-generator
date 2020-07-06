@@ -1,12 +1,11 @@
 import React from 'react';
 
-import {baseComponent} from '../components/hof/base'
+import { baseComponent } from '../components/hof/base';
 
 class Demo extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-    };
+    this.state = {};
   }
 
   componentDidMount() {
@@ -21,7 +20,21 @@ class Demo extends React.Component {
     console.log('Demo end render');
     return (
       <div>
-        dems
+        {this.props.globalProps.counter}
+        <button
+          onClick={() => {
+            this.props.globalActions.counterActions.increment(20);
+          }}
+        >
+          +
+        </button>
+        <button
+          onClick={() => {
+            this.props.globalActions.counterActions.decrement(10);
+          }}
+        >
+          -
+        </button>
       </div>
     );
   }

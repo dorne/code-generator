@@ -3,14 +3,10 @@ import './App.css';
 
 import { Layout, Menu, Breadcrumb } from 'antd';
 
-import Project from './pages/Project';
-import Settings from './pages/Settings';
-import About from './pages/About';
-import Demo from './pages/Demo';
-
-import { NavLink, Route, Switch, withRouter } from 'react-router-dom';
+import { NavLink, Route, Switch } from 'react-router-dom';
 
 import { baseComponent } from './components/hof/base';
+import { mainRoutes } from './routes';
 
 const { Header, Content, Footer } = Layout;
 
@@ -49,18 +45,20 @@ class App extends React.Component {
             defaultSelectedKeys={['/']}
             selectedKeys={[location.pathname]}
           >
-            <Menu.Item key="/">
-              <NavLink to="/">项目</NavLink>
-            </Menu.Item>
-            <Menu.Item key="/settings/1">
-              <NavLink to="/settings/1">设置</NavLink>
-            </Menu.Item>
-            <Menu.Item key="/about">
-              <NavLink to="/about">关于</NavLink>
-            </Menu.Item>
-            <Menu.Item key="/demo">
-              <NavLink to="/demo">样例</NavLink>
-            </Menu.Item>
+            {mainRoutes.map(route => {
+              if (
+                route.mateData.hasOwnProperty('isMenu') &&
+                route.mateData.isMenu
+              ) {
+                return (
+                  <Menu.Item key={route.path}>
+                    <NavLink to={route.path}>{route.mateData.name}</NavLink>
+                  </Menu.Item>
+                );
+              } else {
+                return '';
+              }
+            })}
           </Menu>
         </Header>
         <Content className="site-layout" style={{ padding: '0 50px', marginTop: 64 }}>
@@ -70,27 +68,11 @@ class App extends React.Component {
           </Breadcrumb>
           <div className="site-layout-background" style={{ padding: 24, minHeight: 790 }}>
             <Switch>
-              <Route path="/" component={Project} exact></Route>
-              <Route path="/settings/:id" component={Settings}></Route>
-              <Route path="/about" component={About}></Route>
-              <Route path="/demo" component={Demo}></Route>
+              {mainRoutes.map(route => {
+                return <Route key={route.path} {...route} />;
+              })}
             </Switch>
             {match}
-            {this.props.globalProps.counter}
-            <button
-              onClick={() => {
-                this.props.globalActions.counterActions.increment(20);
-              }}
-            >
-              +
-            </button>
-            <button
-              onClick={() => {
-                this.props.globalActions.counterActions.decrement(10);
-              }}
-            >
-              -
-            </button>
           </div>
         </Content>
         <Footer style={{ textAlign: 'center' }}>Ant Design ©2018 Created by Ant UED</Footer>
@@ -98,6 +80,5 @@ class App extends React.Component {
     );
   }
 }
-
 
 export default baseComponent(App);
