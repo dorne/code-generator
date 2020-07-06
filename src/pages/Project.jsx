@@ -5,6 +5,8 @@ import sd from 'silly-datetime';
 import { Table, Space, Popconfirm, message, Button, Tooltip } from 'antd';
 import { DeleteOutlined, PlusOutlined, SettingOutlined, ReloadOutlined } from '@ant-design/icons';
 
+import {HOC, connect} from '../components/tools'
+
 class Project extends React.Component {
   constructor(props) {
     super(props);
@@ -239,4 +241,4 @@ class Project extends React.Component {
   }
 }
 
-export default Project;
+export default connect(HOC(Project));

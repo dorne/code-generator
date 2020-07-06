@@ -1,5 +1,7 @@
 import React from 'react';
 
+import {HOC, connect} from '../components/tools'
+
 class About extends React.Component {
   constructor(props) {
     super(props);
@@ -13,6 +15,9 @@ class About extends React.Component {
   }
 
   render() {
+    console.log('About render');
+    console.log(this.props);
+    console.log('About end render');
     return (
       <div>
         about
@@ -21,4 +26,4 @@ class About extends React.Component {
   }
 }
 
-export default About;
+export default connect(HOC(About));

@@ -1,18 +1,24 @@
 import React from 'react';
 
+import {HOC, connect} from '../components/tools'
+import { NavLink, Route, Switch, withRouter } from 'react-router-dom';
+
 class Settings extends React.Component {
   constructor(props) {
     super(props);
     this.state = {};
-    console.log('Settings');
-    console.log(props);
-    console.log('Settings End');
   }
 
   componentDidMount() {
+    console.log('Settings componentDidMount');
+    console.log(this.props);
+    console.log('Settings end componentDidMount');
   }
 
   render() {
+    console.log('Settings render');
+    console.log(this.props);
+    console.log('Settings end render');
     return (
       <div>
         设置
@@ -21,4 +27,4 @@ class Settings extends React.Component {
   }
 }
 
-export default Settings;
+export default connect(HOC(withRouter(Settings)));

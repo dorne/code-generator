@@ -9,9 +9,10 @@ import About from './pages/About';
 
 import { NavLink, Route, Switch, withRouter } from 'react-router-dom';
 
-import { connect } from 'react-redux';
-import * as counterActions from './actions/counter';
-import { bindActionCreators } from 'redux';
+
+
+
+import {HOC, connect} from './components/tools'
 
 const { Header, Content, Footer } = Layout;
 
@@ -23,16 +24,18 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    console.log('componentDidMount');
+    console.log('app componentDidMount');
     console.log(this.props);
-    console.log('end componentDidMount');
+    console.log('app end componentDidMount');
   }
 
   render() {
+    let { component, routes = [] } = this.props
+    console.log(component, routes)
     const { location } = this.props;
-    console.log('app');
+    console.log('app render');
     console.log(this.props);
-    console.log('app end');
+    console.log('app end render');
     return (
       <Layout>
         <Header style={{ position: 'fixed', zIndex: 1, width: '100%' }}>
@@ -65,7 +68,8 @@ class App extends React.Component {
               <Route path="/settings/:id" component={Settings}></Route>
               <Route path="/about" component={About}></Route>
             </Switch>
-            {this.props.counter}
+            {this.props.___location.path}
+            {this.props.___counter}
             <button
               onClick={() => {
                 this.props.counterActions.increment(20);
@@ -88,18 +92,9 @@ class App extends React.Component {
   }
 }
 
-const mapStateToProps = state => {
-  return {
-    counter: state.counter,
-  };
-};
 
-const mapDispatchToProps = dispatch => {
-  return {
-    counterActions: bindActionCreators(counterActions, dispatch),
-  };
-};
 
 const _withRouter = withRouter(App);
 
-export default connect(mapStateToProps, mapDispatchToProps)(_withRouter);
+
+export default connect(HOC(_withRouter));
