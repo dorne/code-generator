@@ -3,7 +3,7 @@ import './App.css';
 
 import { Layout, Menu, Breadcrumb } from 'antd';
 
-import { NavLink, Route, Switch } from 'react-router-dom';
+import { NavLink, Route, Switch, Redirect } from 'react-router-dom';
 
 import { baseComponent } from './components/hof/base';
 import { mainRoutes } from './routes';
@@ -50,8 +50,8 @@ class App extends React.Component {
             {mainRoutes.map(route => {
               if (route.routeMateData.hasOwnProperty('isMenu') && route.routeMateData.isMenu) {
                 return (
-                  <Menu.Item key={route.path}>
-                    <NavLink to={route.path}>{route.routeMateData.title}</NavLink>
+                  <Menu.Item key={route.routeMateData.path}>
+                    <NavLink to={route.routeMateData.path}>{route.routeMateData.title}</NavLink>
                   </Menu.Item>
                 );
               } else {
@@ -70,6 +70,7 @@ class App extends React.Component {
               {mainRoutes.map(route => {
                 return <Route key={route.path} {...route} />;
               })}
+              <Redirect path='/' to='/project/list'></Redirect>
             </Switch>
             {match}
           </div>
