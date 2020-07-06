@@ -6,13 +6,11 @@ import { Layout, Menu, Breadcrumb } from 'antd';
 import Project from './pages/Project';
 import Settings from './pages/Settings';
 import About from './pages/About';
+import Demo from './pages/Demo';
 
 import { NavLink, Route, Switch, withRouter } from 'react-router-dom';
 
-
-
-
-import {Base, connect} from './components/hof/base'
+import { baseComponent } from './components/hof/base';
 
 const { Header, Content, Footer } = Layout;
 
@@ -30,14 +28,16 @@ class App extends React.Component {
   }
 
   render() {
-    let { component, routes = [] } = this.props
-    console.log(component, routes)
+    let { component, routes = [] } = this.props;
+    console.log(component, routes);
     const { location } = this.props;
     console.log('app render');
     console.log(this.props);
     console.log('app end render');
 
-    const match = this.props.globalProps.match.hasOwnProperty('params') ? JSON.stringify(this.props.globalProps.match.params) : '无参数';
+    const match = this.props.globalProps.match.hasOwnProperty('params')
+      ? JSON.stringify(this.props.globalProps.match.params)
+      : '无参数';
 
     return (
       <Layout>
@@ -58,6 +58,9 @@ class App extends React.Component {
             <Menu.Item key="/about">
               <NavLink to="/about">关于</NavLink>
             </Menu.Item>
+            <Menu.Item key="/demo">
+              <NavLink to="/demo">样例</NavLink>
+            </Menu.Item>
           </Menu>
         </Header>
         <Content className="site-layout" style={{ padding: '0 50px', marginTop: 64 }}>
@@ -70,6 +73,7 @@ class App extends React.Component {
               <Route path="/" component={Project} exact></Route>
               <Route path="/settings/:id" component={Settings}></Route>
               <Route path="/about" component={About}></Route>
+              <Route path="/demo" component={Demo}></Route>
             </Switch>
             {match}
             {this.props.globalProps.counter}
@@ -96,8 +100,4 @@ class App extends React.Component {
 }
 
 
-
-const _withRouter = withRouter(App);
-
-
-export default connect(Base(_withRouter));
+export default baseComponent(App);

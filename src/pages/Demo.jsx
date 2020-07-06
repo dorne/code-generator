@@ -2,7 +2,7 @@ import React from 'react';
 
 import {baseComponent} from '../components/hof/base'
 
-class About extends React.Component {
+class Demo extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -10,21 +10,21 @@ class About extends React.Component {
   }
 
   componentDidMount() {
-    console.log('About componentDidMount');
+    console.log('Demo componentDidMount');
     console.log(this.props);
-    console.log('About end componentDidMount');
+    console.log('Demo end componentDidMount');
   }
 
   render() {
-    console.log('About render');
+    console.log('Demo render');
     console.log(this.props);
-    console.log('About end render');
+    console.log('Demo end render');
     return (
       <div>
-        about {this.state.abouut}
+        dems
       </div>
     );
   }
 }
 
-export default baseComponent(About);
+export default baseComponent(Demo);

@@ -5,7 +5,9 @@ import * as matchActions from '../../actions/match';
 import { bindActionCreators } from 'redux';
 import { connect as reduxConnect } from 'react-redux';
 
-export function Base(WrappedComponent) {
+import { withRouter } from 'react-router-dom';
+
+export function base(WrappedComponent) {
   return class Base extends React.Component {
     constructor(props) {
       super(props);
@@ -60,3 +62,9 @@ export function connect(WrappedComponent) {
 
   return reduxConnect(mapStateToProps, mapDispatchToProps)(WrappedComponent);
 }
+
+export function baseComponent(WrappedComponent) {
+    return connect(base(withRouter(WrappedComponent)));
+  }
+
+ 

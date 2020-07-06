@@ -5,7 +5,7 @@ import sd from 'silly-datetime';
 import { Table, Space, Popconfirm, message, Button, Tooltip } from 'antd';
 import { DeleteOutlined, PlusOutlined, SettingOutlined, ReloadOutlined } from '@ant-design/icons';
 
-import {Base, connect} from '../components/hof/base'
+import {baseComponent} from '../components/hof/base'
 
 class Project extends React.Component {
   constructor(props) {
@@ -241,4 +241,4 @@ class Project extends React.Component {
   }
 }
 
-export default connect(Base(Project));
+export default baseComponent(Project);
