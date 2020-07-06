@@ -7,6 +7,8 @@ import { connect as reduxConnect } from 'react-redux';
 
 import { withRouter } from 'react-router-dom';
 
+const notNull = (val) => val !== undefined && JSON.stringify(val) !== '{}' ? true : false
+
 export function base(WrappedComponent) {
   return class Base extends React.Component {
     constructor(props) {
@@ -17,17 +19,10 @@ export function base(WrappedComponent) {
     }
 
     componentDidMount() {
+      //设置路由匹配的参数
       this.props.globalActions.matchActions.add({});
-
-      if (this.props !== undefined && JSON.stringify(this.props) !== '{}') {
-        if (this.props.match !== undefined && JSON.stringify(this.props.match) !== '{}') {
-          if (
-            this.props.match.params !== undefined &&
-            JSON.stringify(this.props.match.params) !== '{}'
-          ) {
-            this.props.globalActions.matchActions.add(this.props.match);
-          }
-        }
+      if(notNull(this.props) && notNull(this.props.match) && notNull(this.props.match.params)){
+        this.props.globalActions.matchActions.add(this.props.match)
       }
     }
 
