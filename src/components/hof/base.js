@@ -2,6 +2,7 @@ import React from 'react';
 
 import * as counterActions from '../../actions/counter';
 import * as matchActions from '../../actions/match';
+import * as routesActions from '../../actions/routes';
 import { bindActionCreators } from 'redux';
 import { connect as reduxConnect } from 'react-redux';
 
@@ -42,6 +43,7 @@ export function connect(WrappedComponent) {
       globalProps: {
         counter: state.counter,
         match: state.match,
+        routes: state.routes
       },
     };
   };
@@ -51,6 +53,7 @@ export function connect(WrappedComponent) {
       globalActions: {
         counterActions: bindActionCreators(counterActions, dispatch),
         matchActions: bindActionCreators(matchActions, dispatch),
+        routesActions: bindActionCreators(routesActions, dispatch),
       },
     };
   };

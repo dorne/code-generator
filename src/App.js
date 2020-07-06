@@ -15,12 +15,14 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     console.log('constructor');
+    this.props.globalActions.routesActions.add(mainRoutes);
   }
 
   componentDidMount() {
     console.log('app componentDidMount');
     console.log(this.props);
     console.log('app end componentDidMount');
+    
   }
 
   render() {
@@ -46,10 +48,7 @@ class App extends React.Component {
             selectedKeys={[location.pathname]}
           >
             {mainRoutes.map(route => {
-              if (
-                route.routeMateData.hasOwnProperty('isMenu') &&
-                route.routeMateData.isMenu
-              ) {
+              if (route.routeMateData.hasOwnProperty('isMenu') && route.routeMateData.isMenu) {
                 return (
                   <Menu.Item key={route.path}>
                     <NavLink to={route.path}>{route.routeMateData.title}</NavLink>
