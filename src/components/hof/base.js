@@ -1,12 +1,12 @@
 import React from 'react';
 
-import * as counterActions from '../actions/counter';
-import * as matchActions from '../actions/match';
+import * as counterActions from '../../actions/counter';
+import * as matchActions from '../../actions/match';
 import { bindActionCreators } from 'redux';
 import { connect as reduxConnect } from 'react-redux';
 
-export function HOC(WrappedComponent) {
-  return class HOC extends React.Component {
+export function Base(WrappedComponent) {
+  return class Base extends React.Component {
     constructor(props) {
       super(props);
       this.state = {

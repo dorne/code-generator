@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {HOC, connect} from '../components/tools'
+import {Base, connect} from '../components/hof/base'
 
 class About extends React.Component {
   constructor(props) {
@@ -27,4 +27,4 @@ class About extends React.Component {
   }
 }
 
-export default connect(HOC(About));
+export default connect(Base(About));

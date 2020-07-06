@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {HOC, connect} from '../components/tools'
+import {Base, connect} from '../components/hof/base'
 import { NavLink, Route, Switch, withRouter } from 'react-router-dom';
 
 class Settings extends React.Component {
@@ -27,4 +27,4 @@ class Settings extends React.Component {
   }
 }
 
-export default connect(HOC(withRouter(Settings)));
+export default connect(Base(withRouter(Settings)));

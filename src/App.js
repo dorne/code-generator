@@ -12,7 +12,7 @@ import { NavLink, Route, Switch, withRouter } from 'react-router-dom';
 
 
 
-import {HOC, connect} from './components/tools'
+import {Base, connect} from './components/hof/base'
 
 const { Header, Content, Footer } = Layout;
 
@@ -100,4 +100,4 @@ class App extends React.Component {
 const _withRouter = withRouter(App);
 
 
-export default connect(HOC(_withRouter));
+export default connect(Base(_withRouter));
