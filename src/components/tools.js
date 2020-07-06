@@ -22,7 +22,7 @@ export function HOC(WrappedComponent) {
       console.log('---------');
 
       this.setState({ newProps: newProps });
-      this.props.locationActions.add({});
+      this.props.globaActions.locationActions.add({});
 
       if (this.props !== undefined && JSON.stringify(this.props) !== '{}') {
         if (this.props.match !== undefined && JSON.stringify(this.props.match) !== '{}') {
@@ -34,7 +34,7 @@ export function HOC(WrappedComponent) {
               wangdun: this.props.match,
             };
             this.setState({ newProps: newProps });
-            this.props.locationActions.add(this.props.match);
+            this.props.globaActions.locationActions.add(this.props.match);
             console.log('-----1----');
             console.log(this.props);
             console.log('-----1----');
@@ -56,15 +56,19 @@ export function HOC(WrappedComponent) {
 export function connect(WrappedComponent) {
   const mapStateToProps = state => {
     return {
-      ___counter: state.counter,
-      ___location: state.location,
+      globalProps : {
+        ___counter: state.counter,
+        ___location: state.location,
+      }
     };
   };
 
   const mapDispatchToProps = dispatch => {
     return {
-      counterActions: bindActionCreators(counterActions, dispatch),
-      locationActions: bindActionCreators(locationActions, dispatch),
+      globaActions:{
+        counterActions: bindActionCreators(counterActions, dispatch),
+        locationActions: bindActionCreators(locationActions, dispatch),
+      }
     };
   };
 

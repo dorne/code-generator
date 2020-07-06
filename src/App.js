@@ -68,18 +68,18 @@ class App extends React.Component {
               <Route path="/settings/:id" component={Settings}></Route>
               <Route path="/about" component={About}></Route>
             </Switch>
-            {this.props.___location.path}
-            {this.props.___counter}
+            {this.props.globalProps.___location.path}
+            {this.props.globalProps.___counter}
             <button
               onClick={() => {
-                this.props.counterActions.increment(20);
+                this.props.globaActions.counterActions.increment(20);
               }}
             >
               +
             </button>
             <button
               onClick={() => {
-                this.props.counterActions.decrement(10);
+                this.props.globaActions.counterActions.decrement(10);
               }}
             >
               -
