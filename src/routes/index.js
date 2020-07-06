@@ -5,10 +5,11 @@ import Demo from '../pages/Demo';
 
 export const mainRoutes = [
   {
-    mateData: {
+    routeMateData: {
+      id: 1,
+      pid: 0,
       isMenu: true,
-      parent: 0,
-      name: '项目',
+      title: '项目',
     },
     path: '/',
     component: Project,
@@ -16,28 +17,34 @@ export const mainRoutes = [
   },
 
   {
-    mateData: {
+    routeMateData: {
+      id: 2,
+      pid: 0,
       isMenu: true,
       parent: 0,
-      name: '设置',
+      title: '设置',
     },
     path: '/settings',
     component: Settings,
   },
   {
-    mateData: {
+    routeMateData: {
+      id: 3,
+      pid: 0,
       isMenu: true,
       parent: 0,
-      name: '关于',
+      title: '关于',
     },
     path: '/about',
     component: About,
   },
   {
-    mateData: {
+    routeMateData: {
+      id: 4,
+      pid: 0,
       isMenu: true,
       parent: 0,
-      name: '样例',
+      title: '样例',
     },
     path: '/demo',
     component: Demo,
