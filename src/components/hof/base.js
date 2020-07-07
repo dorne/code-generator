@@ -58,10 +58,12 @@ export function base(WrappedComponent) {
 
         let strBreadcrumb = breadcrumb.map(item => {
           if (typeof item.routeMateData.match === 'string') {
-            return item;
+            return {...item};
           } else {
-            item.routeMateData.match = item.routeMateData.match(params);
-            return { ...item };
+            return {
+              ...item,
+              routeMateData: { ...item.routeMateData, match: item.routeMateData.match(params) },
+            };
           }
         });
 

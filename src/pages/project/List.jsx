@@ -76,7 +76,17 @@ class Project extends React.Component {
           render: record => (
             <Space size="middle">
               <Tooltip title="配置">
-                <Button type="primary" shape="circle" icon={<SettingOutlined />} size="small" />
+                <Button
+                  type="primary"
+                  shape="circle"
+                  icon={<SettingOutlined />}
+                  size="small"
+                  onClick={() => {
+                    console.log('配置项目');
+                    console.log(record.folderName);
+                    this.props.history.push(`/project/edit/${record.folderName}`);
+                  }}
+                />
               </Tooltip>
               <Popconfirm
                 placement="bottomRight"

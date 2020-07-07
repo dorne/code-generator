@@ -33,6 +33,19 @@ export const mainRoutes = [
   },
   {
     routeMateData: {
+      id: 6,
+      pid: 1,
+      isMenu: false,
+      title: '编辑',
+      path: '/project/edit/demo',
+      match: ({ folderName }) => `/project/edit/${folderName}`,
+    },
+    path: '/project/edit/:folderName',
+    component: ProjectEdit,
+    exact: true,
+  },
+  {
+    routeMateData: {
       id: 2,
       pid: 0,
       isMenu: true,
