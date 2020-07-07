@@ -32,19 +32,34 @@ var getProjectList = function () {
 
   for (var i = 0; i < dirs.length; i++) {
     var value = dirs[i];
+    var folderName = value.substring(value.lastIndexOf('/') + 1, value.length);
+    //不展示template项目文件,template为创建项目的模版目录
+    if(folderName === 'template') continue;
     var infoPath = join(value, '/info.json');
     var jsonStr = fs.readFileSync(infoPath, 'utf8');
     var obj = {};
     obj.infoPath = infoPath;
     obj.folderPath = value;
-    obj.folderName = value.substring(value.lastIndexOf('/') + 1, value.length);
+    obj.folderName = folderName;
     obj.jsonRaw = jsonStr;
     obj.json = JSON.parse(jsonStr);
     arr.push(obj);
   }
 
+  console.log('获取项目列表 getProjectList');
+  console.log(arr);
   return arr;
 };
+
+/**
+ * 添加项目
+ * 
+ * @param {object}
+ */
+var addProject = function(obj){
+  console.log('addProject');
+  console.log(obj);
+}
 
 /**
  * 获取用户资源路径
@@ -98,6 +113,7 @@ var artTemplate = function () {
 
 module.exports = {
   getProjectList,
+  addProject,
   resourcesPath,
   databaseAddon,
   artTemplate,

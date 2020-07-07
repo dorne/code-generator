@@ -2,9 +2,12 @@ import React from 'react';
 
 import { baseComponent } from '../../components/hof/base';
 
-import { Form, Input, Button, Select } from 'antd';
+import { Form, Input, Button } from 'antd';
 
-const { Option } = Select;
+const btnStyle = {
+  marginRight: '8px',
+};
+
 const layout = {
   labelCol: {
     span: 4,
@@ -15,8 +18,8 @@ const layout = {
 };
 const tailLayout = {
   wrapperCol: {
-    offset: 8,
-    span: 16,
+    offset: 10,
+    span: 14,
   },
 };
 
@@ -28,25 +31,14 @@ class Edit extends React.Component {
     this.state = {};
   }
 
-  onGenderChange = value => {
-    this.formRef.current.setFieldsValue({
-      note: `Hi, ${value === 'male' ? 'man' : 'lady'}!`,
-    });
-  };
-
   onFinish = values => {
-    console.log(values);
+    /*global dorne_code_gen*/
+    /*eslint no-undef: "error"*/
+    dorne_code_gen.appUtils.addProject(values);
   };
 
-  onReset = () => {
-    this.formRef.current.resetFields();
-  };
-
-  onFill = () => {
-    this.formRef.current.setFieldsValue({
-      note: 'Hello world!',
-      gender: 'male',
-    });
+  onBack = () => {
+    this.props.history.goBack();
   };
 
   componentDidMount() {}
@@ -56,8 +48,8 @@ class Edit extends React.Component {
       <div>
         <Form {...layout} ref={this.formRef} name="control-ref" onFinish={this.onFinish}>
           <Form.Item
-            name="note"
-            label="Note"
+            name="sortCode"
+            label="排序"
             rules={[
               {
                 required: true,
@@ -67,53 +59,34 @@ class Edit extends React.Component {
             <Input />
           </Form.Item>
           <Form.Item
-            name="gender"
-            label="Gender"
+            name="name"
+            label="项目名"
             rules={[
               {
                 required: true,
               },
             ]}
           >
-            <Select
-              placeholder="Select a option and change input text above"
-              onChange={this.onGenderChange}
-              allowClear
-            >
-              <Option value="male">male</Option>
-              <Option value="female">female</Option>
-              <Option value="other">other</Option>
-            </Select>
+            <Input />
           </Form.Item>
           <Form.Item
-            noStyle
-            shouldUpdate={(prevValues, currentValues) => prevValues.gender !== currentValues.gender}
+            name="folderName"
+            label="文件夹名"
+            rules={[
+              {
+                required: true,
+              },
+            ]}
           >
-            {({ getFieldValue }) =>
-              getFieldValue('gender') === 'other' ? (
-                <Form.Item
-                  name="customizeGender"
-                  label="Customize Gender"
-                  rules={[
-                    {
-                      required: true,
-                    },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-              ) : null
-            }
+            <Input />
           </Form.Item>
+
           <Form.Item {...tailLayout}>
-            <Button type="primary" htmlType="submit">
-              Submit
+            <Button style={btnStyle} type="primary" htmlType="submit">
+              添加
             </Button>
-            <Button htmlType="button" onClick={this.onReset}>
-              Reset
-            </Button>
-            <Button type="link" htmlType="button" onClick={this.onFill}>
-              Fill form
+            <Button style={btnStyle} htmlType="button" onClick={this.onBack}>
+              后退
             </Button>
           </Form.Item>
         </Form>
