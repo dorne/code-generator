@@ -1,10 +1,13 @@
 /* eslint-disable strict */
-"use strict";
+'use strict';
 
 var path = require('path');
 var homedir = require('os').homedir();
 var fs = require('fs');
+var fse = require('fs-extra');
+var sd = require('silly-datetime');
 var appFolder = 'code-generator';
+var appUserPath = path.join(homedir, '/code-generator');
 
 /**
  * 获取项目列表
@@ -34,7 +37,7 @@ var getProjectList = function () {
     var value = dirs[i];
     var folderName = value.substring(value.lastIndexOf('/') + 1, value.length);
     //不展示template项目文件,template为创建项目的模版目录
-    if(folderName === 'template') continue;
+    if (folderName === 'template') continue;
     var infoPath = join(value, '/info.json');
     var jsonStr = fs.readFileSync(infoPath, 'utf8');
     var obj = {};
@@ -53,13 +56,33 @@ var getProjectList = function () {
 
 /**
  * 添加项目
- * 
+ *
  * @param {object}
  */
-var addProject = function(obj){
+var addProject = function (obj) {
   console.log('addProject');
   console.log(obj);
-}
+  var projectPath = path.join(appUserPath, `/project/${obj.folderName}`);
+  var infoPath = path.join(projectPath, `/info.json`);
+  var timeStr = sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss');
+  try {
+    fse.copySync(
+      path.join(appUserPath, '/project/template'),
+      projectPath,
+    );
+    console.log('addProject copy success!', projectPath);
+    var jsonStr = fs.readFileSync(infoPath, 'utf8');
+    var json = JSON.parse(jsonStr);
+    json.name = obj.name;
+    json.sortCode = obj.sortCode;
+    json.createTime = timeStr;
+    json.updateTime = timeStr;
+    jsonStr = JSON.stringify(json);
+    fs.writeFileSync(infoPath, jsonStr, 'utf-8');
+  } catch (err) {
+    console.error(err);
+  }
+};
 
 /**
  * 获取用户资源路径
