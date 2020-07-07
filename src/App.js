@@ -3,7 +3,7 @@ import './App.css';
 
 import { Layout, Menu, Breadcrumb } from 'antd';
 
-import { NavLink, Route, Switch, Redirect } from 'react-router-dom';
+import { NavLink, Route, Switch, Redirect, Link } from 'react-router-dom';
 
 import { baseComponent } from './components/hof/base';
 import { mainRoutes } from './routes';
@@ -72,7 +72,9 @@ class App extends React.Component {
             {
               breadcrumb.map(item => {
                 return (
-                  <Breadcrumb.Item key={item.routeMateData.id}>{item.routeMateData.title}</Breadcrumb.Item>
+                  <Breadcrumb.Item key={item.routeMateData.id}>
+                    <Link to={item.routeMateData.match} >{item.routeMateData.title}</Link>
+                    </Breadcrumb.Item>
                 );
               })
             }

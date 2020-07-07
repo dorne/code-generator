@@ -5,7 +5,7 @@ import sd from 'silly-datetime';
 import { Table, Space, Popconfirm, message, Button, Tooltip } from 'antd';
 import { DeleteOutlined, PlusOutlined, SettingOutlined, ReloadOutlined } from '@ant-design/icons';
 
-import {baseComponent} from '../../components/hof/base'
+import { baseComponent } from '../../components/hof/base';
 
 class Project extends React.Component {
   constructor(props) {
@@ -192,7 +192,11 @@ class Project extends React.Component {
     return (
       <div>
         <Space style={{ marginBottom: 16 }}>
-          <Button type="primary" icon={<PlusOutlined />}>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => this.props.history.push('/project/add')}
+          >
             添加
           </Button>
 
