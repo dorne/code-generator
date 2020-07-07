@@ -3,6 +3,7 @@ import React from 'react';
 import * as counterActions from '../../actions/counter';
 import * as matchActions from '../../actions/match';
 import * as routesActions from '../../actions/routes';
+import * as breadcrumbActions from '../../actions/breadcrumb';
 import { bindActionCreators } from 'redux';
 import { connect as reduxConnect } from 'react-redux';
 
@@ -64,11 +65,13 @@ export function base(WrappedComponent) {
           }
         });
 
-        console.log('----xxxxxxxxxxxxxxxxxxx--')
-        console.log(strBreadcrumb);
-        let a  = strBreadcrumb.map(e => e.routeMateData.match);
-        console.log(a);
-        console.log('---xxxxxxxxxxxxxxxxxxxx---')
+        this.props.globalActions.breadcrumbActions.add(strBreadcrumb);
+
+        // console.log('----xxxxxxxxxxxxxxxxxxx--')
+        // console.log(strBreadcrumb);
+        // let a  = strBreadcrumb.map(e => e.routeMateData.match);
+        // console.log(a);
+        // console.log('---xxxxxxxxxxxxxxxxxxxx---')
       }
     }
 
@@ -89,6 +92,7 @@ export function connect(WrappedComponent) {
         counter: state.counter,
         match: state.match,
         routes: state.routes,
+        breadcrumb: state.breadcrumb
       },
     };
   };
@@ -99,6 +103,7 @@ export function connect(WrappedComponent) {
         counterActions: bindActionCreators(counterActions, dispatch),
         matchActions: bindActionCreators(matchActions, dispatch),
         routesActions: bindActionCreators(routesActions, dispatch),
+        breadcrumbActions:  bindActionCreators(breadcrumbActions, dispatch),
       },
     };
   };

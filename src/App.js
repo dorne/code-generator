@@ -22,7 +22,6 @@ class App extends React.Component {
     console.log('app componentDidMount');
     console.log(this.props);
     console.log('app end componentDidMount');
-    
   }
 
   render() {
@@ -37,6 +36,11 @@ class App extends React.Component {
       ? JSON.stringify(this.props.globalProps.match.params)
       : '无参数';
 
+    const breadcrumb = this.props.globalProps.breadcrumb;
+    const selectedKeys = breadcrumb.map(e => e.routeMateData.id.toString());
+
+    console.log('导航 selectedKeys');
+    console.log(selectedKeys);
     return (
       <Layout>
         <Header style={{ position: 'fixed', zIndex: 1, width: '100%' }}>
@@ -44,14 +48,16 @@ class App extends React.Component {
           <Menu
             theme="dark"
             mode="horizontal"
-            defaultSelectedKeys={['/']}
-            selectedKeys={[location.pathname]}
+            defaultSelectedKeys={[1]}
+            selectedKeys={selectedKeys}
           >
             {mainRoutes.map(route => {
               if (route.routeMateData.hasOwnProperty('isMenu') && route.routeMateData.isMenu) {
                 return (
-                  <Menu.Item key={route.routeMateData.path}>
-                    <NavLink to={route.routeMateData.path ? route.routeMateData.path : route.path}>{route.routeMateData.title}</NavLink>
+                  <Menu.Item key={route.routeMateData.id}>
+                    <NavLink to={route.routeMateData.path ? route.routeMateData.path : route.path}>
+                      {route.routeMateData.title}
+                    </NavLink>
                   </Menu.Item>
                 );
               } else {
@@ -63,14 +69,20 @@ class App extends React.Component {
         <Content className="site-layout" style={{ padding: '0 50px', marginTop: 64 }}>
           <Breadcrumb style={{ margin: '16px 0' }}>
             <Breadcrumb.Item>应用</Breadcrumb.Item>
-            <Breadcrumb.Item>项目</Breadcrumb.Item>
+            {
+              breadcrumb.map(item => {
+                return (
+                  <Breadcrumb.Item key={item.routeMateData.id}>{item.routeMateData.title}</Breadcrumb.Item>
+                );
+              })
+            }
           </Breadcrumb>
           <div className="site-layout-background" style={{ padding: 24, minHeight: 790 }}>
             <Switch>
               {mainRoutes.map(route => {
                 return <Route key={route.path} {...route} />;
               })}
-              <Redirect path='/' to='/project/list'></Redirect>
+              <Redirect path="/" to="/project/list"></Redirect>
             </Switch>
             {match}
           </div>
