@@ -28,7 +28,9 @@ class Edit extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+
+    };
   }
 
   onFinish = values => {
@@ -41,9 +43,12 @@ class Edit extends React.Component {
     this.props.history.goBack();
   };
 
-  componentDidMount() {}
+  componentDidMount() {
+    
+  }
 
   render() {
+    const btnText = this.props.match.params.folderName ? '编辑' : '添加';
     return (
       <div>
         <Form {...layout} ref={this.formRef} name="control-ref" onFinish={this.onFinish}>
@@ -83,7 +88,7 @@ class Edit extends React.Component {
 
           <Form.Item {...tailLayout}>
             <Button style={btnStyle} type="primary" htmlType="submit">
-              添加
+            {btnText}
             </Button>
             <Button style={btnStyle} htmlType="button" onClick={this.onBack}>
               后退

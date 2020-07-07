@@ -51,7 +51,9 @@ class Project extends React.Component {
           key: 'createTime',
           defaultSortOrder: '',
           sorter: (a, b) => {
-            return a.json.createTime - b.json.createTime;
+            a = new Date(a.json.createTime).getTime()
+            b = new Date(b.json.createTime).getTime()
+            return a - b;
           },
           render: record => {
             return record.json.createTime;
@@ -62,7 +64,9 @@ class Project extends React.Component {
           key: 'updateTime',
           defaultSortOrder: '',
           sorter: (a, b) => {
-            return a.json.updateTime - b.json.updateTime;
+            a = new Date(a.json.createTime).getTime()
+            b = new Date(b.json.createTime).getTime()
+            return a - b;
           },
           render: record => {
             return record.json.updateTime;
