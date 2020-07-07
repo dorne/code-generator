@@ -51,7 +51,7 @@ class App extends React.Component {
               if (route.routeMateData.hasOwnProperty('isMenu') && route.routeMateData.isMenu) {
                 return (
                   <Menu.Item key={route.routeMateData.path}>
-                    <NavLink to={route.routeMateData.path}>{route.routeMateData.title}</NavLink>
+                    <NavLink to={route.routeMateData.path ? route.routeMateData.path : route.path}>{route.routeMateData.title}</NavLink>
                   </Menu.Item>
                 );
               } else {
