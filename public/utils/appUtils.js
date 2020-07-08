@@ -63,6 +63,11 @@ var addProject = function (obj) {
   console.log('addProject');
   console.log(obj);
   var projectPath = path.join(appUserPath, `/project/${obj.folderName}`);
+
+  if (fs.existsSync(projectPath)) {
+    return {code:0, msg:'文件名被占用,请更换文件名'}
+  }
+
   var infoPath = path.join(projectPath, `/info.json`);
   var timeStr = sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss');
   try {
@@ -79,8 +84,10 @@ var addProject = function (obj) {
     json.updateTime = timeStr;
     jsonStr = JSON.stringify(json);
     fs.writeFileSync(infoPath, jsonStr, 'utf-8');
+    return {code:1, msg:'添加成功'}
   } catch (err) {
     console.error(err);
+    return {code:0, msg:err}
   }
 };
 
