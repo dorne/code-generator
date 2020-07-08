@@ -249,6 +249,9 @@ class Project extends React.Component {
             showSizeChanger: true,
             defaultPageSize: 10,
             defaultCurrent: 1,
+            showTotal: ((total) => {
+              return `共 ${total} 条`;
+            }),    
           }}
           bordered
           columns={this.state.tableColumns}

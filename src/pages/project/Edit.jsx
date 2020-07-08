@@ -2,15 +2,15 @@ import React from 'react';
 
 import { baseComponent } from '../../components/hof/base';
 
-import { BulbOutlined, ApiOutlined } from '@ant-design/icons';
+import { BulbOutlined, ApiOutlined, SyncOutlined } from '@ant-design/icons';
 
-import { Form, Input, Button, message, Collapse, Select, Modal, Alert } from 'antd';
+import { Form, Input, Button, message, Collapse, Select, Modal, Alert, Table, Space } from 'antd';
 const { Panel } = Collapse;
 const { Option } = Select;
 
 const btnStyle = {
-  marginTop: '8px',
-  marginRight: '8px',
+  marginTop: 16,
+  marginRight: 16,
 };
 
 const layout = {
@@ -37,6 +37,19 @@ class Edit extends React.Component {
       databaseList: dorne_code_gen.appUtils.databaseList(),
       uri: '',
       database: '',
+      tablesData: [],
+      tablesColumns: [
+        {
+          title: '表名',
+          dataIndex: 'name',
+          key: 'name',
+        },
+        {
+          title: '备注',
+          dataIndex: 'comment',
+          key: 'comment',
+        },
+      ],
     };
   }
 
@@ -50,6 +63,17 @@ class Edit extends React.Component {
     this.setState({
       database: value,
     });
+  };
+
+  getTables = async () => {
+    try {
+      const db = dorne_code_gen.appUtils.databaseAddon(this.state.database);
+      let tables = await db.getTables(this.state.uri);
+      console.log(tables);
+      this.setState({
+        tablesData: tables,
+      });
+    } catch (error) {}
   };
 
   testConnect = async () => {
@@ -256,6 +280,31 @@ class Edit extends React.Component {
                     }
                   />
                 </Form.Item>
+              </Panel>
+            ) : null}
+            {this.state.editMode ? (
+              <Panel header="表" key="3">
+                <Space style={{ marginBottom: 16 }}>
+                  <Button onClick={this.getTables} icon={<SyncOutlined />}>拉取表</Button>
+                </Space>
+
+                <Table
+                  rowKey={record => {
+                    return record.name;
+                  }}
+                  pagination={{
+                    showQuickJumper: true,
+                    showSizeChanger: true,
+                    defaultPageSize: 10,
+                    defaultCurrent: 1,
+                    showTotal: ((total) => {
+                      return `共 ${total} 条`;
+                    }),              
+                  }}
+                  bordered
+                  columns={this.state.tablesColumns}
+                  dataSource={this.state.tablesData}
+                />
               </Panel>
             ) : null}
           </Collapse>
