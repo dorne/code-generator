@@ -4,7 +4,20 @@ import { baseComponent } from '../../components/hof/base';
 
 import { BulbOutlined, ApiOutlined, SyncOutlined } from '@ant-design/icons';
 
-import { Form, Input, Button, message, Collapse, Select, Modal, Alert, Table, Space, Drawer, Tooltip } from 'antd';
+import {
+  Form,
+  Input,
+  Button,
+  message,
+  Collapse,
+  Select,
+  Modal,
+  Alert,
+  Table,
+  Space,
+  Drawer,
+  Tooltip,
+} from 'antd';
 const { Panel } = Collapse;
 const { Option } = Select;
 
@@ -61,35 +74,48 @@ class Edit extends React.Component {
                   shape="circle"
                   size="small"
                   icon={<SyncOutlined />}
-                  onClick={this.tablesDrawerShow.bind(this, record)}
+                  onClick={this.columnsDrawerShow.bind(this, record)}
                 />
               </Tooltip>
             </Space>
           ),
         },
-      
       ],
-      tablesDrawerVisible:false,
+      columnsDrawerVisible: false,
+      columnsData: [],
+      columnsColumns: [
+        {
+          title: '字段',
+          dataIndex: 'name',
+          key: 'name',
+        },
+        {
+          title: '备注',
+          dataIndex: 'comment',
+          key: 'comment',
+        },
+      ],
     };
   }
 
-
-  
-  tablesDrawerShow = async (record, e) => {
+  columnsDrawerShow = async (record, e) => {
     this.setState({
-      tablesDrawerVisible: true,
+      columnsDrawerVisible: true,
     });
-  
+
     try {
       const db = dorne_code_gen.appUtils.databaseAddon(this.state.database);
       let columns = await db.getColumns(this.state.uri, record.name);
-      console.log(columns);
+      this.setState({
+        columnsData: columns,
+      });
     } catch (error) {}
   };
 
-  tablesDrawerClose = () => {
+  columnsDrawerClose = () => {
     this.setState({
-      tablesDrawerVisible: false,
+      columnsDrawerVisible: false,
+      columnsData: []
     });
   };
 
@@ -325,7 +351,9 @@ class Edit extends React.Component {
             {this.state.editMode ? (
               <Panel header="表" key="3">
                 <Space style={{ marginBottom: 16 }}>
-                  <Button onClick={this.getTables} icon={<SyncOutlined />}>拉取表</Button>
+                  <Button onClick={this.getTables} icon={<SyncOutlined />}>
+                    拉取表
+                  </Button>
                 </Space>
 
                 <Table
@@ -337,9 +365,9 @@ class Edit extends React.Component {
                     showSizeChanger: true,
                     defaultPageSize: 10,
                     defaultCurrent: 1,
-                    showTotal: ((total) => {
+                    showTotal: total => {
                       return `共 ${total} 条`;
-                    }),              
+                    },
                   }}
                   bordered
                   columns={this.state.tablesColumns}
@@ -358,18 +386,24 @@ class Edit extends React.Component {
           </Form.Item>
         </Form>
         <Drawer
-        afterVisibleChange={console.log('afterVisibleChange')}
-        title="字段管理"
-        placement="right"
-        closable={false}
-        width={520}
-        onClose={this.tablesDrawerClose}
-        visible={this.state.tablesDrawerVisible}
-      >
-        <p>Some contents...</p>
-        <p>Some contents...</p>
-        <p>Some contents...</p>
-      </Drawer>
+          afterVisibleChange={console.log('afterVisibleChange')}
+          title="字段管理"
+          placement="right"
+          closable={false}
+          width={520}
+          onClose={this.columnsDrawerClose}
+          visible={this.state.columnsDrawerVisible}
+        >
+          <Table
+            rowKey={record => {
+              return record.name;
+            }}
+            pagination={ false }
+            bordered
+            columns={this.state.columnsColumns}
+            dataSource={this.state.columnsData}
+          />
+        </Drawer>
       </React.Fragment>
     );
   }
