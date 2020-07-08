@@ -65,16 +65,13 @@ var addProject = function (obj) {
   var projectPath = path.join(appUserPath, `/project/${obj.folderName}`);
 
   if (fs.existsSync(projectPath)) {
-    return {code:0, msg:'文件名被占用,请更换文件名'}
+    return { code: 0, msg: '文件名被占用,请更换文件名' };
   }
 
   var infoPath = path.join(projectPath, `/info.json`);
   var timeStr = sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss');
   try {
-    fse.copySync(
-      path.join(appUserPath, '/project/template'),
-      projectPath,
-    );
+    fse.copySync(path.join(appUserPath, '/project/template'), projectPath);
     console.log('addProject copy success!', projectPath);
     var jsonStr = fs.readFileSync(infoPath, 'utf8');
     var json = JSON.parse(jsonStr);
@@ -84,10 +81,10 @@ var addProject = function (obj) {
     json.updateTime = timeStr;
     jsonStr = JSON.stringify(json);
     fs.writeFileSync(infoPath, jsonStr, 'utf-8');
-    return {code:1, msg:'添加成功'}
+    return { code: 1, msg: '添加成功' };
   } catch (err) {
     console.error(err);
-    return {code:0, msg:err}
+    return { code: 0, msg: err };
   }
 };
 
@@ -113,6 +110,19 @@ var databaseAddon = function (dbType) {
   const dbPath = `/${appFolder}/database/${dbType}`;
   const _path = path.join(homedir, dbPath);
   return require(_path);
+};
+
+var databaseList = function () {
+  let arrFiles = [];
+  fs.readdirSync('/Users/Dorne/code-generator/database').filter(function(f) {
+    return f.endsWith('.js');
+  })
+  .forEach(function(f) {
+    arrFiles.push(f.substring(0,f.indexOf(".")))
+  });
+ 
+  console.log(arrFiles);
+  return arrFiles;
 };
 
 /**
@@ -146,5 +156,6 @@ module.exports = {
   addProject,
   resourcesPath,
   databaseAddon,
+  databaseList,
   artTemplate,
 };
