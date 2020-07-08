@@ -11,7 +11,7 @@ exports.testConnection = async function (uri) {
     await sequelize.authenticate();
     res = null;
   } catch (error) {
-    res = error;
+    res = error.message;
     sequelize.close();
   }
   return res;

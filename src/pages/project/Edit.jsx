@@ -2,7 +2,9 @@ import React from 'react';
 
 import { baseComponent } from '../../components/hof/base';
 
-import { Form, Input, Button, message, Collapse, Select } from 'antd';
+import { BulbOutlined, ApiOutlined } from '@ant-design/icons';
+
+import { Form, Input, Button, message, Collapse, Select, Modal, Alert } from 'antd';
 const { Panel } = Collapse;
 const { Option } = Select;
 
@@ -33,8 +35,81 @@ class Edit extends React.Component {
     super(props);
     this.state = {
       databaseList: dorne_code_gen.appUtils.databaseList(),
+      uri: '',
+      database: '',
     };
   }
+
+  handleURIValue = event => {
+    this.setState({
+      uri: event.target.value,
+    });
+  };
+
+  handleDatabaseValue = value => {
+    this.setState({
+      database: value,
+    });
+  };
+
+  testConnect = async () => {
+    if (!this.state.database) {
+      message.error(`请先选中数据库类型`);
+      return false;
+    }
+
+    try {
+      const db = dorne_code_gen.appUtils.databaseAddon(this.state.database);
+      let msg = await db.testConnection(this.state.uri);
+      if (!msg) {
+        message.success(`连接成功`);
+      } else {
+        Modal.info({
+          width: 700,
+          title: '如何配置数据库uri',
+          content: (
+            <div>
+              <p style={{ color: '#ff4d4f' }}>{msg}</p>
+            </div>
+          ),
+          onOk() {},
+        });
+      }
+    } catch (error) {
+      Modal.error({
+        width: 700,
+        title: '数据库uri配置错误',
+        content: (
+          <div>
+            <p style={{ color: '#ff4d4f' }}>{error.message}</p>
+          </div>
+        ),
+        onOk() {},
+      });
+    }
+  };
+
+  howtoURI = () => {
+    Modal.info({
+      width: 700,
+      title: '如何配置数据库uri',
+      content: (
+        <div>
+          <Input
+            style={{ marginTop: 16 }}
+            addonBefore="sqlite"
+            defaultValue="sqlite:c:/db.sqlite"
+          />
+          <Input
+            style={{ marginTop: 16 }}
+            addonBefore="mysql"
+            defaultValue="mysql://user:pass@example.com:5432/dbname"
+          />
+        </div>
+      ),
+      onOk() {},
+    });
+  };
 
   onFinish = values => {
     /*global dorne_code_gen*/
@@ -131,15 +206,19 @@ class Edit extends React.Component {
             {this.state.editMode ? (
               <Panel header="数据库配置" key="2">
                 <Form.Item
-                  name="databse"
-                  label="数据库"
+                  name="database"
+                  label="数据库类型"
                   rules={[
                     {
                       required: true,
                     },
                   ]}
                 >
-                  <Select placeholder="请选择数据驱动" allowClear>
+                  <Select
+                    placeholder="请选择数据驱动"
+                    allowClear
+                    onChange={this.handleDatabaseValue}
+                  >
                     {this.state.databaseList.map(data => {
                       return (
                         <Option key={data} value={data}>
@@ -148,6 +227,34 @@ class Edit extends React.Component {
                       );
                     })}
                   </Select>
+                </Form.Item>
+                <Form.Item
+                  name="uri"
+                  label="数据库连接uri"
+                  rules={[
+                    {
+                      required: true,
+                    },
+                  ]}
+                  onChange={this.handleURIValue}
+                >
+                  <Input
+                    addonAfter={
+                      <>
+                        <Button icon={<BulbOutlined />} size="small" onClick={this.howtoURI}>
+                          如何配置
+                        </Button>
+                        <Button
+                          style={{ marginLeft: 10 }}
+                          icon={<ApiOutlined />}
+                          onClick={this.testConnect}
+                          size="small"
+                        >
+                          测试连接
+                        </Button>
+                      </>
+                    }
+                  />
                 </Form.Item>
               </Panel>
             ) : null}
