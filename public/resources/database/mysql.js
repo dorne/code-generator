@@ -32,7 +32,8 @@ exports.getColumns = async function (uri, table) {
   db = db[db.length - 1];
 
   const tables = await sequelize.query(
-    `SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='${db}' AND TABLE_NAME='${table}';`,
+    // `SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='${db}' AND TABLE_NAME='${table}';`,
+    `SELECT COLUMN_COMMENT as comment, COLUMN_NAME as name FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='${db}' AND TABLE_NAME='${table}';`,
     { type: sequelize.QueryTypes.SELECT },
   );
   return tables;

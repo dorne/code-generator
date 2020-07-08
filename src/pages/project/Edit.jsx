@@ -4,7 +4,7 @@ import { baseComponent } from '../../components/hof/base';
 
 import { BulbOutlined, ApiOutlined, SyncOutlined } from '@ant-design/icons';
 
-import { Form, Input, Button, message, Collapse, Select, Modal, Alert, Table, Space } from 'antd';
+import { Form, Input, Button, message, Collapse, Select, Modal, Alert, Table, Space, Drawer, Tooltip } from 'antd';
 const { Panel } = Collapse;
 const { Option } = Select;
 
@@ -49,9 +49,49 @@ class Edit extends React.Component {
           dataIndex: 'comment',
           key: 'comment',
         },
+        {
+          title: '操作',
+          align: 'center',
+          key: 'operation',
+          render: record => (
+            <Space size="middle">
+              <Tooltip title="配置">
+                <Button
+                  type="primary"
+                  shape="circle"
+                  size="small"
+                  icon={<SyncOutlined />}
+                  onClick={this.tablesDrawerShow.bind(this, record)}
+                />
+              </Tooltip>
+            </Space>
+          ),
+        },
+      
       ],
+      tablesDrawerVisible:false,
     };
   }
+
+
+  
+  tablesDrawerShow = async (record, e) => {
+    this.setState({
+      tablesDrawerVisible: true,
+    });
+  
+    try {
+      const db = dorne_code_gen.appUtils.databaseAddon(this.state.database);
+      let columns = await db.getColumns(this.state.uri, record.name);
+      console.log(columns);
+    } catch (error) {}
+  };
+
+  tablesDrawerClose = () => {
+    this.setState({
+      tablesDrawerVisible: false,
+    });
+  };
 
   handleURIValue = event => {
     this.setState({
@@ -167,7 +207,7 @@ class Edit extends React.Component {
     console.log('databaseList render');
     console.log(databaseList);
     return (
-      <div>
+      <React.Fragment>
         <Form
           {...layout}
           ref={this.formRef}
@@ -317,7 +357,20 @@ class Edit extends React.Component {
             </Button>
           </Form.Item>
         </Form>
-      </div>
+        <Drawer
+        afterVisibleChange={console.log('afterVisibleChange')}
+        title="字段管理"
+        placement="right"
+        closable={false}
+        width={520}
+        onClose={this.tablesDrawerClose}
+        visible={this.state.tablesDrawerVisible}
+      >
+        <p>Some contents...</p>
+        <p>Some contents...</p>
+        <p>Some contents...</p>
+      </Drawer>
+      </React.Fragment>
     );
   }
 }
