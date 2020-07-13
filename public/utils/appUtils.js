@@ -58,6 +58,9 @@ var getProject = function (folderName) {
   var infoPath = path.join(homedir, `/${appFolder}/project/${folderName}/info.json`);
   var jsonStr = fs.readFileSync(infoPath, 'utf8');
   var jsonObj = JSON.parse(jsonStr);
+  if(jsonObj.filterData === undefined){
+    jsonObj.filterData = []
+  }
   return jsonObj
 };
 

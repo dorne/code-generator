@@ -2,7 +2,14 @@ import React from 'react';
 
 import { baseComponent } from '../../components/hof/base';
 
-import { BulbOutlined, ApiOutlined, SyncOutlined, SearchOutlined } from '@ant-design/icons';
+import {
+  BulbOutlined,
+  ApiOutlined,
+  SyncOutlined,
+  SearchOutlined,
+  DeleteOutlined,
+  ReloadOutlined,
+} from '@ant-design/icons';
 
 import Highlighter from 'react-highlight-words';
 
@@ -23,6 +30,7 @@ import {
   Space,
   Drawer,
   Tooltip,
+  Popconfirm,
 } from 'antd';
 const { Panel } = Collapse;
 const { Option } = Select;
@@ -219,6 +227,7 @@ class Edit extends React.Component {
           ),
         },
       ],
+      filterSelRowKeys: [],
       filterData: [],
       filterColumns: [
         {
@@ -239,17 +248,23 @@ class Edit extends React.Component {
           key: 'operation',
           render: record => (
             <Space size="middle">
-              <Tooltip title="配置">
-                <Button
-                  type="primary"
-                  shape="circle"
-                  size="small"
-                  icon={<SyncOutlined />}
-                  onClick={() => {
-                    alert('任务名');
-                  }}
-                />
-              </Tooltip>
+              <Popconfirm
+                placement="bottomRight"
+                title={`确定要删除[${record.name}]候选表吗?`}
+                onConfirm={this.onFilterDelSelectRow.bind(this, record)}
+                okText="删除"
+                cancelText="取消"
+              >
+                <Tooltip title="删除">
+                  <Button
+                    danger
+                    type="primary"
+                    shape="circle"
+                    icon={<DeleteOutlined />}
+                    size="small"
+                  />
+                </Tooltip>
+              </Popconfirm>
             </Space>
           ),
         },
@@ -411,11 +426,11 @@ class Edit extends React.Component {
     this.setState({ editMode: folderName ? true : false });
 
     const projectData = dorne_code_gen.appUtils.getProject(folderName);
-    const filterData = projectData.filterData ? projectData.filterData : []
+    const filterData = projectData.filterData ? projectData.filterData : [];
 
     if (folderName) {
       this.setState({
-        filterData : filterData,
+        filterData: filterData,
         projectData: projectData,
         folderName: folderName,
       });
@@ -430,20 +445,20 @@ class Edit extends React.Component {
     console.log(selectedRowKeys);
   };
 
+  onFilterSelectChange = selectedRowKeys => {
+    this.setState({ filterSelRowKeys: selectedRowKeys });
+  };
+
   onAddFilterTable = () => {
     const selectRow = this.state.tablesData.filter(item =>
       this.state.tablesSelRowKeys.includes(item.name),
     );
 
     let fieldsValue = dorne_code_gen.appUtils.getProject(this.state.folderName);
-    
-    if (fieldsValue.filterData === undefined){
-      fieldsValue.filterData = [];
-    }
 
     let arr = collect(fieldsValue.filterData);
     for (var index in selectRow) {
-      if (!(arr.where('name', selectRow[index].name).all().length > 0)){
+      if (!(arr.where('name', selectRow[index].name).all().length > 0)) {
         fieldsValue.filterData.push(selectRow[index]);
       }
     }
@@ -459,6 +474,32 @@ class Edit extends React.Component {
     }
   };
 
+  onFilterDelSelectRow = (record = null) => {
+    const filterSelRowKeys = record ? [record.name] : this.state.filterSelRowKeys;
+
+    const filterData = this.state.filterData.filter(item => !filterSelRowKeys.includes(item.name));
+
+    let fieldsValue = dorne_code_gen.appUtils.getProject(this.state.folderName);
+    fieldsValue.filterData = filterData;
+
+    const res = dorne_code_gen.appUtils.saveProject(this.state.folderName, fieldsValue);
+    if (res.code === 1) {
+      this.setState({
+        filterData: fieldsValue.filterData,
+      });
+      message.success(`${res.msg}`);
+    } else {
+      message.error(`${res.msg}`);
+    }
+  };
+
+  filterTableReload = () => {
+    let fieldsValue = dorne_code_gen.appUtils.getProject(this.state.folderName);
+    this.setState({
+      filterData: fieldsValue.filterData,
+    });
+  };
+
   render() {
     const btnText = this.state.editMode ? '编辑' : '添加';
     const databaseList = this.state.databaseList;
@@ -472,6 +513,12 @@ class Edit extends React.Component {
       selectedRowKeys: this.state.tablesSelRowKeys,
       onChange: this.onTablesSelectChange,
     };
+
+    const filterRowSelection = {
+      selectedRowKeys: this.state.filterSelRowKeys,
+      onChange: this.onFilterSelectChange,
+    };
+
     return (
       <React.Fragment>
         <Form
@@ -631,13 +678,33 @@ class Edit extends React.Component {
             {this.state.editMode ? (
               <Panel header="候选表" key="4">
                 <Space style={{ marginBottom: 16 }}>
-                  <Button>拉取表</Button>
+                  <Button onClick={this.filterTableReload} icon={<ReloadOutlined />}>
+                    刷新
+                  </Button>
+                  <Popconfirm
+                    placement="bottomRight"
+                    title={`确认要删除[${this.state.filterSelRowKeys.length}个]候选表吗?`}
+                    onConfirm={this.onFilterDelSelectRow.bind(this, null)}
+                    okText="删除"
+                    cancelText="取消"
+                    disabled={!(this.state.filterSelRowKeys.length > 0)}
+                  >
+                    <Button
+                      type="primary"
+                      danger
+                      icon={<DeleteOutlined />}
+                      disabled={!(this.state.filterSelRowKeys.length > 0)}
+                    >
+                      删除
+                    </Button>
+                  </Popconfirm>
                 </Space>
 
                 <Table
                   rowKey={record => {
                     return record.name;
                   }}
+                  rowSelection={filterRowSelection}
                   pagination={{
                     showQuickJumper: true,
                     showSizeChanger: true,
