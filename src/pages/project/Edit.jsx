@@ -9,6 +9,7 @@ import {
   SearchOutlined,
   DeleteOutlined,
   ReloadOutlined,
+  RestOutlined,
 } from '@ant-design/icons';
 
 import Highlighter from 'react-highlight-words';
@@ -426,6 +427,7 @@ class Edit extends React.Component {
     const folderName = this.props.match.params.folderName;
     this.setState({ editMode: folderName ? true : false });
 
+
     const projectData = folderName ? dorne_code_gen.appUtils.getProject(folderName) : {};
     const filterData = projectData.filterData ? projectData.filterData : [];
     const collapseKeys = projectData.collapseKeys ? projectData.collapseKeys : ['1'];
@@ -510,6 +512,21 @@ class Edit extends React.Component {
       });
     }
   };
+
+  onFilterClear = () => {
+    let fieldsValue = dorne_code_gen.appUtils.getProject(this.state.folderName);
+    fieldsValue.filterData = [];
+
+    const res = dorne_code_gen.appUtils.saveProject(this.state.folderName, fieldsValue);
+    if (res.code === 1) {
+      this.setState({
+        filterData: fieldsValue.filterData,
+      });
+      message.success(`${res.msg}`);
+    } else {
+      message.error(`${res.msg}`);
+    }
+  }
 
   render() {
     const btnText = this.state.editMode ? '编辑' : '添加';
@@ -707,6 +724,21 @@ class Edit extends React.Component {
                       disabled={!(this.state.filterSelRowKeys.length > 0)}
                     >
                       删除
+                    </Button>
+                  </Popconfirm>
+                  <Popconfirm
+                    placement="bottomRight"
+                    title={`确认要清空候选表吗?`}
+                    onConfirm={this.onFilterClear}
+                    okText="删除"
+                    cancelText="取消"
+                  >
+                    <Button
+                      type="primary"
+                      danger
+                      icon={<RestOutlined />}
+                    >
+                      清空
                     </Button>
                   </Popconfirm>
                 </Space>
