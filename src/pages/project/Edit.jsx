@@ -6,6 +6,8 @@ import { BulbOutlined, ApiOutlined, SyncOutlined, SearchOutlined } from '@ant-de
 
 import Highlighter from 'react-highlight-words';
 
+import * as collect from 'collect.js';
+
 import * as sd from 'silly-datetime';
 
 import {
@@ -124,6 +126,7 @@ class Edit extends React.Component {
     this.state = {
       databaseList: dorne_code_gen.appUtils.databaseList(),
       tablesReloadloading: false,
+      tablesSelRowKeys: [],
       tablesData: [],
       tablesColumns: [
         {
@@ -172,6 +175,85 @@ class Edit extends React.Component {
         },
       ],
       columnsLoading: true,
+      taskData: [
+        {
+          name: '任务1',
+          comment: '备注',
+        },
+        {
+          name: '任务12',
+          comment: '备注',
+        },
+      ],
+      taskColumns: [
+        {
+          title: '任务名',
+          dataIndex: 'name',
+          key: 'name',
+          ...this.getColumnSearchProps('name'),
+        },
+        {
+          title: '备注',
+          dataIndex: 'comment',
+          key: 'comment',
+          ...this.getColumnSearchProps('comment'),
+        },
+        {
+          title: '操作',
+          align: 'center',
+          key: 'operation',
+          render: record => (
+            <Space size="middle">
+              <Tooltip title="配置">
+                <Button
+                  type="primary"
+                  shape="circle"
+                  size="small"
+                  icon={<SyncOutlined />}
+                  onClick={() => {
+                    alert('任务名');
+                  }}
+                />
+              </Tooltip>
+            </Space>
+          ),
+        },
+      ],
+      filterData: [],
+      filterColumns: [
+        {
+          title: '表名',
+          dataIndex: 'name',
+          key: 'name',
+          ...this.getColumnSearchProps('name'),
+        },
+        {
+          title: '备注',
+          dataIndex: 'comment',
+          key: 'comment',
+          ...this.getColumnSearchProps('comment'),
+        },
+        {
+          title: '操作',
+          align: 'center',
+          key: 'operation',
+          render: record => (
+            <Space size="middle">
+              <Tooltip title="配置">
+                <Button
+                  type="primary"
+                  shape="circle"
+                  size="small"
+                  icon={<SyncOutlined />}
+                  onClick={() => {
+                    alert('任务名');
+                  }}
+                />
+              </Tooltip>
+            </Space>
+          ),
+        },
+      ],
       folderName: null,
       projectData: null,
     };
@@ -325,19 +407,57 @@ class Edit extends React.Component {
   };
 
   componentWillMount() {
-    console.log('``````````````render```````````0000');
     const folderName = this.props.match.params.folderName;
     this.setState({ editMode: folderName ? true : false });
 
+    const projectData = dorne_code_gen.appUtils.getProject(folderName);
+    const filterData = projectData.filterData ? projectData.filterData : []
+
     if (folderName) {
       this.setState({
-        projectData: dorne_code_gen.appUtils.getProject(folderName),
+        filterData : filterData,
+        projectData: projectData,
         folderName: folderName,
       });
     }
   }
 
   componentDidMount() {}
+
+  onTablesSelectChange = selectedRowKeys => {
+    this.setState({ tablesSelRowKeys: selectedRowKeys });
+    console.log('onTablesSelectChange');
+    console.log(selectedRowKeys);
+  };
+
+  onAddFilterTable = () => {
+    const selectRow = this.state.tablesData.filter(item =>
+      this.state.tablesSelRowKeys.includes(item.name),
+    );
+
+    let fieldsValue = dorne_code_gen.appUtils.getProject(this.state.folderName);
+    
+    if (fieldsValue.filterData === undefined){
+      fieldsValue.filterData = [];
+    }
+
+    let arr = collect(fieldsValue.filterData);
+    for (var index in selectRow) {
+      if (!(arr.where('name', selectRow[index].name).all().length > 0)){
+        fieldsValue.filterData.push(selectRow[index]);
+      }
+    }
+
+    const res = dorne_code_gen.appUtils.saveProject(this.state.folderName, fieldsValue);
+    if (res.code === 1) {
+      this.setState({
+        filterData: fieldsValue.filterData,
+      });
+      message.success(`${res.msg}`);
+    } else {
+      message.error(`${res.msg}`);
+    }
+  };
 
   render() {
     const btnText = this.state.editMode ? '编辑' : '添加';
@@ -348,6 +468,10 @@ class Edit extends React.Component {
     const formData = this.state.projectData ? this.state.projectData : undefined;
     const folderName = this.state.folderName ? this.state.folderName : '';
 
+    const tablesRowSelection = {
+      selectedRowKeys: this.state.tablesSelRowKeys,
+      onChange: this.onTablesSelectChange,
+    };
     return (
       <React.Fragment>
         <Form
@@ -357,7 +481,7 @@ class Edit extends React.Component {
           onFinish={this.onFinish}
           initialValues={formData}
         >
-          <Collapse defaultActiveKey={['1', '2', '3']}>
+          <Collapse defaultActiveKey={['1', '2', '3', '4']}>
             <Panel header="项目基础设置" key="1">
               <Form.Item style={{ display: 'none' }} name="createTime" label="创建时间">
                 <Input />
@@ -475,6 +599,39 @@ class Edit extends React.Component {
                   >
                     拉取表
                   </Button>
+                  <Button
+                    disabled={!(this.state.tablesSelRowKeys.length > 0)}
+                    onClick={this.onAddFilterTable}
+                  >
+                    添加到候选
+                  </Button>
+                </Space>
+
+                <Table
+                  rowKey={record => {
+                    return record.name;
+                  }}
+                  rowSelection={tablesRowSelection}
+                  pagination={{
+                    showQuickJumper: true,
+                    showSizeChanger: true,
+                    defaultPageSize: 10,
+                    defaultCurrent: 1,
+                    pageSizeOptions: [10, 20, 50, 100, 200, 500, 1000],
+                    showTotal: total => {
+                      return `共 ${total} 条`;
+                    },
+                  }}
+                  bordered
+                  columns={this.state.tablesColumns}
+                  dataSource={this.state.tablesData}
+                />
+              </Panel>
+            ) : null}
+            {this.state.editMode ? (
+              <Panel header="候选表" key="4">
+                <Space style={{ marginBottom: 16 }}>
+                  <Button>拉取表</Button>
                 </Space>
 
                 <Table
@@ -491,8 +648,33 @@ class Edit extends React.Component {
                     },
                   }}
                   bordered
-                  columns={this.state.tablesColumns}
-                  dataSource={this.state.tablesData}
+                  columns={this.state.filterColumns}
+                  dataSource={this.state.filterData}
+                />
+              </Panel>
+            ) : null}
+            {this.state.editMode ? (
+              <Panel header="任务" key="5">
+                <Space style={{ marginBottom: 16 }}>
+                  <Button>拉取表</Button>
+                </Space>
+
+                <Table
+                  rowKey={record => {
+                    return record.name;
+                  }}
+                  pagination={{
+                    showQuickJumper: true,
+                    showSizeChanger: true,
+                    defaultPageSize: 10,
+                    defaultCurrent: 1,
+                    showTotal: total => {
+                      return `共 ${total} 条`;
+                    },
+                  }}
+                  bordered
+                  columns={this.state.taskColumns}
+                  dataSource={this.state.taskData}
                 />
               </Panel>
             ) : null}
