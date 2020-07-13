@@ -426,18 +426,15 @@ class Edit extends React.Component {
     const folderName = this.props.match.params.folderName;
     this.setState({ editMode: folderName ? true : false });
 
-    const projectData = dorne_code_gen.appUtils.getProject(folderName);
+    const projectData = folderName ? dorne_code_gen.appUtils.getProject(folderName) : {};
     const filterData = projectData.filterData ? projectData.filterData : [];
-    const collapseKeys = projectData.collapseKeys ? projectData.collapseKeys : [];
-
-    if (folderName) {
-      this.setState({
-        collapseKeys: collapseKeys,
-        filterData: filterData,
-        projectData: projectData,
-        folderName: folderName,
-      });
-    }
+    const collapseKeys = projectData.collapseKeys ? projectData.collapseKeys : ['1'];
+    this.setState({
+      collapseKeys: collapseKeys,
+      filterData: filterData,
+      projectData: projectData,
+      folderName: folderName,
+    });
   }
 
   componentDidMount() {}
@@ -503,14 +500,16 @@ class Edit extends React.Component {
     });
   };
 
-  oncollapseChange = (keys) => {
-    let fieldsValue = dorne_code_gen.appUtils.getProject(this.state.folderName);
-    fieldsValue.collapseKeys = keys
-    dorne_code_gen.appUtils.saveProject(this.state.folderName, fieldsValue);
-    this.setState({
-      collapseKeys: keys,
-    });
-  }
+  oncollapseChange = keys => {
+    if (this.state.editMode) {
+      let fieldsValue = dorne_code_gen.appUtils.getProject(this.state.folderName);
+      fieldsValue.collapseKeys = keys;
+      dorne_code_gen.appUtils.saveProject(this.state.folderName, fieldsValue);
+      this.setState({
+        collapseKeys: keys,
+      });
+    }
+  };
 
   render() {
     const btnText = this.state.editMode ? '编辑' : '添加';
@@ -735,7 +734,13 @@ class Edit extends React.Component {
             {this.state.editMode ? (
               <Panel header="任务" key="5">
                 <Space style={{ marginBottom: 16 }}>
-                  <Button onClick={() => this.props.history.push(`/project/edit/${this.state.folderName}/task/add`)}>新建任务</Button>
+                  <Button
+                    onClick={() =>
+                      this.props.history.push(`/project/edit/${this.state.folderName}/task/add`)
+                    }
+                  >
+                    新建任务
+                  </Button>
                   <Button>拉取表</Button>
                   <Button>拉取表</Button>
                 </Space>
