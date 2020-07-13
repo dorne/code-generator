@@ -133,6 +133,7 @@ class Edit extends React.Component {
     super(props);
     this.state = {
       databaseList: dorne_code_gen.appUtils.databaseList(),
+      collapseKeys: [],
       tablesReloadloading: false,
       tablesSelRowKeys: [],
       tablesData: [],
@@ -427,9 +428,11 @@ class Edit extends React.Component {
 
     const projectData = dorne_code_gen.appUtils.getProject(folderName);
     const filterData = projectData.filterData ? projectData.filterData : [];
+    const collapseKeys = projectData.collapseKeys ? projectData.collapseKeys : [];
 
     if (folderName) {
       this.setState({
+        collapseKeys: collapseKeys,
         filterData: filterData,
         projectData: projectData,
         folderName: folderName,
@@ -500,6 +503,15 @@ class Edit extends React.Component {
     });
   };
 
+  oncollapseChange = (keys) => {
+    let fieldsValue = dorne_code_gen.appUtils.getProject(this.state.folderName);
+    fieldsValue.collapseKeys = keys
+    dorne_code_gen.appUtils.saveProject(this.state.folderName, fieldsValue);
+    this.setState({
+      collapseKeys: keys,
+    });
+  }
+
   render() {
     const btnText = this.state.editMode ? '编辑' : '添加';
     const databaseList = this.state.databaseList;
@@ -528,7 +540,7 @@ class Edit extends React.Component {
           onFinish={this.onFinish}
           initialValues={formData}
         >
-          <Collapse defaultActiveKey={['1', '2', '3', '4']}>
+          <Collapse onChange={this.oncollapseChange} defaultActiveKey={this.state.collapseKeys}>
             <Panel header="项目基础设置" key="1">
               <Form.Item style={{ display: 'none' }} name="createTime" label="创建时间">
                 <Input />
