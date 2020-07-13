@@ -186,6 +186,10 @@ class Project extends React.Component {
   };
 
   componentDidMount() {
+   
+  }
+
+  componentWillMount(){
     console.log('componentDidMount');
     console.log(dorne_code_gen.appUtils.getProjectList());
     console.log(sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss'));

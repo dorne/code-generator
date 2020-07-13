@@ -44,6 +44,12 @@ const tailLayout = {
 class Edit extends React.Component {
   formRef = React.createRef();
 
+  setStateAsync(state) {
+    return new Promise(resolve => {
+      this.setState(state, resolve);
+    });
+  }
+
   constructor(props) {
     super(props);
     this.state = {
@@ -95,6 +101,8 @@ class Edit extends React.Component {
           key: 'comment',
         },
       ],
+      folderName: null,
+      projectData: null,
     };
   }
 
@@ -115,7 +123,7 @@ class Edit extends React.Component {
   columnsDrawerClose = () => {
     this.setState({
       columnsDrawerVisible: false,
-      columnsData: []
+      columnsData: [],
     });
   };
 
@@ -205,6 +213,7 @@ class Edit extends React.Component {
     /*global dorne_code_gen*/
     /*eslint no-undef: "error"*/
     if (this.state.editMode) {
+      console.log(values);
       message.success(`编辑模式`);
     } else {
       const res = dorne_code_gen.appUtils.addProject(values);
@@ -221,17 +230,30 @@ class Edit extends React.Component {
     this.props.history.push('/project/list');
   };
 
-  componentDidMount() {
-    this.setState({
-      editMode: this.props.match.params.folderName ? true : false,
-    });
+  componentWillMount() {
+    console.log('``````````````render```````````0000');
+    const folderName = this.props.match.params.folderName;
+    this.setState({ editMode: folderName ? true : false });
+
+    if (folderName) {
+      this.setState({
+        projectData: dorne_code_gen.appUtils.getProject(folderName),
+        folderName: folderName,
+      });
+    }
   }
+
+  componentDidMount() {}
 
   render() {
     const btnText = this.state.editMode ? '编辑' : '添加';
     const databaseList = this.state.databaseList;
     console.log('databaseList render');
     console.log(databaseList);
+    const disabled = this.state.editMode ? true : false;
+    const formData = this.state.projectData ? this.state.projectData : undefined;
+    const folderName = this.state.folderName ? this.state.folderName : '';
+
     return (
       <React.Fragment>
         <Form
@@ -239,7 +261,7 @@ class Edit extends React.Component {
           ref={this.formRef}
           name="control-ref"
           onFinish={this.onFinish}
-          initialValues={{ sortCode: 0 }}
+          initialValues={formData}
         >
           <Collapse defaultActiveKey={['1', '2', '3']}>
             <Panel header="项目基础设置" key="1">
@@ -278,19 +300,23 @@ class Edit extends React.Component {
                 <Input />
               </Form.Item>
               <Form.Item
-                name="folderName"
+                name={!disabled ? 'folderName' : undefined}
                 label="文件夹名"
-                rules={[
-                  {
-                    required: true,
-                  },
-                  {
-                    pattern: /^[A-Za-z0-9/_/-]+$/,
-                    message: '只允许英文字符和数字',
-                  },
-                ]}
+                rules={
+                  !disabled
+                    ? [
+                        {
+                          required: true,
+                        },
+                        {
+                          pattern: /^[A-Za-z0-9/_/-]+$/,
+                          message: '只允许英文字符和数字',
+                        },
+                      ]
+                    : undefined
+                }
               >
-                <Input />
+                <Input value={folderName} disabled={disabled} />
               </Form.Item>
             </Panel>
             {this.state.editMode ? (
@@ -398,7 +424,7 @@ class Edit extends React.Component {
             rowKey={record => {
               return record.name;
             }}
-            pagination={ false }
+            pagination={false}
             bordered
             columns={this.state.columnsColumns}
             dataSource={this.state.columnsData}
