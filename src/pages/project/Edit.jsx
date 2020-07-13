@@ -2,7 +2,11 @@ import React from 'react';
 
 import { baseComponent } from '../../components/hof/base';
 
-import { BulbOutlined, ApiOutlined, SyncOutlined } from '@ant-design/icons';
+import { BulbOutlined, ApiOutlined, SyncOutlined, SearchOutlined } from '@ant-design/icons';
+
+import Highlighter from 'react-highlight-words';
+
+import * as sd from 'silly-datetime';
 
 import {
   Form,
@@ -50,23 +54,88 @@ class Edit extends React.Component {
     });
   }
 
+  handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    this.setState({
+      searchText: selectedKeys[0],
+      searchedColumn: dataIndex,
+    });
+  }
+
+  handleReset = clearFilters => {
+    clearFilters();
+    this.setState({ searchText: '' });
+  }
+
+  getColumnSearchProps = dataIndex => ({
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+      <div style={{ padding: 8 }}>
+        <Input
+          ref={node => {
+            this.searchInput = node;
+          }}
+          placeholder={`搜索 ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onPressEnter={() => this.handleSearch(selectedKeys, confirm, dataIndex)}
+          style={{ width: 188, marginBottom: 8, display: 'block' }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => this.handleSearch(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            搜索
+          </Button>
+          <Button onClick={() => this.handleReset(clearFilters)} size="small" style={{ width: 90 }}>
+            重置
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: filtered => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
+    onFilter: (value, record) =>
+      record[dataIndex]
+        ? record[dataIndex].toString().toLowerCase().includes(value.toLowerCase())
+        : '',
+    onFilterDropdownVisibleChange: visible => {
+      if (visible) {
+        setTimeout(() => this.searchInput.select());
+      }
+    },
+    render: text =>
+      this.state.searchedColumn === dataIndex ? (
+        <Highlighter
+          highlightStyle={{ backgroundColor: '#ffc069', padding: 0 }}
+          searchWords={[this.state.searchText]}
+          autoEscape
+          textToHighlight={text ? text.toString() : ''}
+        />
+      ) : (
+        text
+      ),
+  });
+
   constructor(props) {
     super(props);
     this.state = {
       databaseList: dorne_code_gen.appUtils.databaseList(),
-      uri: '',
-      database: '',
       tablesData: [],
       tablesColumns: [
         {
           title: '表名',
           dataIndex: 'name',
           key: 'name',
+          ...this.getColumnSearchProps('name'),
         },
         {
           title: '备注',
           dataIndex: 'comment',
           key: 'comment',
+          ...this.getColumnSearchProps('comment'),
         },
         {
           title: '操作',
@@ -107,13 +176,16 @@ class Edit extends React.Component {
   }
 
   columnsDrawerShow = async (record, e) => {
+    const database = this.formRef.current.getFieldValue('database');
+    const uri = this.formRef.current.getFieldValue('uri');
+
     this.setState({
       columnsDrawerVisible: true,
     });
 
     try {
-      const db = dorne_code_gen.appUtils.databaseAddon(this.state.database);
-      let columns = await db.getColumns(this.state.uri, record.name);
+      const db = dorne_code_gen.appUtils.databaseAddon(database);
+      let columns = await db.getColumns(uri, record.name);
       this.setState({
         columnsData: columns,
       });
@@ -127,22 +199,12 @@ class Edit extends React.Component {
     });
   };
 
-  handleURIValue = event => {
-    this.setState({
-      uri: event.target.value,
-    });
-  };
-
-  handleDatabaseValue = value => {
-    this.setState({
-      database: value,
-    });
-  };
-
   getTables = async () => {
+    const database = this.formRef.current.getFieldValue('database');
+    const uri = this.formRef.current.getFieldValue('uri');
     try {
-      const db = dorne_code_gen.appUtils.databaseAddon(this.state.database);
-      let tables = await db.getTables(this.state.uri);
+      const db = dorne_code_gen.appUtils.databaseAddon(database);
+      let tables = await db.getTables(uri);
       console.log(tables);
       this.setState({
         tablesData: tables,
@@ -151,20 +213,22 @@ class Edit extends React.Component {
   };
 
   testConnect = async () => {
-    if (!this.state.database) {
+    const database = this.formRef.current.getFieldValue('database');
+    const uri = this.formRef.current.getFieldValue('uri');
+    if (!database) {
       message.error(`请先选中数据库类型`);
       return false;
     }
 
     try {
-      const db = dorne_code_gen.appUtils.databaseAddon(this.state.database);
-      let msg = await db.testConnection(this.state.uri);
+      const db = dorne_code_gen.appUtils.databaseAddon(database);
+      let msg = await db.testConnection(uri);
       if (!msg) {
         message.success(`连接成功`);
       } else {
         Modal.info({
           width: 700,
-          title: '如何配置数据库uri',
+          title: '数据库连接错误',
           content: (
             <div>
               <p style={{ color: '#ff4d4f' }}>{msg}</p>
@@ -213,8 +277,13 @@ class Edit extends React.Component {
     /*global dorne_code_gen*/
     /*eslint no-undef: "error"*/
     if (this.state.editMode) {
-      console.log(values);
-      message.success(`编辑模式`);
+      const val = { ...values, updateTime: sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss') };
+      const res = dorne_code_gen.appUtils.saveProject(this.state.folderName, val);
+      if (res.code === 1) {
+        message.success(`${res.msg}`);
+      } else {
+        message.error(`${res.msg}`);
+      }
     } else {
       const res = dorne_code_gen.appUtils.addProject(values);
       if (res.code === 1) {
@@ -265,6 +334,12 @@ class Edit extends React.Component {
         >
           <Collapse defaultActiveKey={['1', '2', '3']}>
             <Panel header="项目基础设置" key="1">
+              <Form.Item style={{ display: 'none' }} name="createTime" label="创建时间">
+                <Input />
+              </Form.Item>
+              <Form.Item style={{ display: 'none' }} name="updateTime" label="修改时间">
+                <Input />
+              </Form.Item>
               <Form.Item
                 name="sortCode"
                 label="排序"
@@ -290,10 +365,6 @@ class Edit extends React.Component {
                 rules={[
                   {
                     required: true,
-                  },
-                  {
-                    pattern: /^[A-Za-z0-9/_/-]+$/,
-                    message: '只允许英文字符和数字',
                   },
                 ]}
               >
@@ -330,11 +401,7 @@ class Edit extends React.Component {
                     },
                   ]}
                 >
-                  <Select
-                    placeholder="请选择数据驱动"
-                    allowClear
-                    onChange={this.handleDatabaseValue}
-                  >
+                  <Select placeholder="请选择数据驱动" allowClear>
                     {this.state.databaseList.map(data => {
                       return (
                         <Option key={data} value={data}>
@@ -352,7 +419,6 @@ class Edit extends React.Component {
                       required: true,
                     },
                   ]}
-                  onChange={this.handleURIValue}
                 >
                   <Input
                     addonAfter={

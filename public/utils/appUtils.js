@@ -61,6 +61,16 @@ var getProject = function (folderName) {
   return jsonObj
 };
 
+var saveProject = function (folderName, obj) {
+  var infoPath = path.join(homedir, `/${appFolder}/project/${folderName}/info.json`);
+  try{
+    fs.writeFileSync(infoPath, JSON.stringify(obj, undefined, 4), 'utf-8');
+    return { code: 1, msg: '保存成功' };
+  }catch (err) {
+    return { code: 0, msg: err.msg };
+  }
+};
+
 /**
  * 添加项目
  *
@@ -162,6 +172,7 @@ module.exports = {
   getProjectList,
   getProject,
   addProject,
+  saveProject,
   resourcesPath,
   databaseAddon,
   databaseList,

@@ -22,7 +22,7 @@ class Project extends React.Component {
           key: 'sortCode',
           width: 80,
           // defaultSortOrder: 'ascend',
-          defaultSortOrder: 'descend',
+          // defaultSortOrder: 'descend',
           sorter: (a, b) => {
             return a.json.sortCode - b.json.sortCode;
           },
@@ -49,7 +49,7 @@ class Project extends React.Component {
         {
           title: '创建时间',
           key: 'createTime',
-          defaultSortOrder: '',
+          defaultSortOrder: 'descend',
           sorter: (a, b) => {
             a = new Date(a.json.createTime).getTime()
             b = new Date(b.json.createTime).getTime()
