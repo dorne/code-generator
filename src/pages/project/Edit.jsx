@@ -60,12 +60,12 @@ class Edit extends React.Component {
       searchText: selectedKeys[0],
       searchedColumn: dataIndex,
     });
-  }
+  };
 
   handleReset = clearFilters => {
     clearFilters();
     this.setState({ searchText: '' });
-  }
+  };
 
   getColumnSearchProps = dataIndex => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
@@ -123,6 +123,7 @@ class Edit extends React.Component {
     super(props);
     this.state = {
       databaseList: dorne_code_gen.appUtils.databaseList(),
+      tablesReloadloading: false,
       tablesData: [],
       tablesColumns: [
         {
@@ -170,6 +171,7 @@ class Edit extends React.Component {
           key: 'comment',
         },
       ],
+      columnsLoading: true,
       folderName: null,
       projectData: null,
     };
@@ -181,6 +183,7 @@ class Edit extends React.Component {
 
     this.setState({
       columnsDrawerVisible: true,
+      columnsLoading: true,
     });
 
     try {
@@ -190,18 +193,33 @@ class Edit extends React.Component {
         columnsData: columns,
       });
     } catch (error) {}
+
+    setTimeout(() => {
+      this.setState({
+        columnsLoading: false,
+      });
+    }, 200);
   };
 
   columnsDrawerClose = () => {
     this.setState({
       columnsDrawerVisible: false,
-      columnsData: [],
     });
+    setTimeout(() => {
+      this.setState({
+        columnsLoading: true,
+        columnsData: [],
+      });
+    }, 200);
   };
 
   getTables = async () => {
     const database = this.formRef.current.getFieldValue('database');
     const uri = this.formRef.current.getFieldValue('uri');
+    this.setState({
+      tablesReloadloading: true,
+    });
+
     try {
       const db = dorne_code_gen.appUtils.databaseAddon(database);
       let tables = await db.getTables(uri);
@@ -210,6 +228,13 @@ class Edit extends React.Component {
         tablesData: tables,
       });
     } catch (error) {}
+
+    setTimeout(() => {
+      message.success(`拉取成功`);
+      this.setState({
+        tablesReloadloading: false,
+      });
+    }, 500);
   };
 
   testConnect = async () => {
@@ -443,7 +468,11 @@ class Edit extends React.Component {
             {this.state.editMode ? (
               <Panel header="表" key="3">
                 <Space style={{ marginBottom: 16 }}>
-                  <Button onClick={this.getTables} icon={<SyncOutlined />}>
+                  <Button
+                    onClick={this.getTables}
+                    icon={<SyncOutlined />}
+                    loading={this.state.tablesReloadloading}
+                  >
                     拉取表
                   </Button>
                 </Space>
@@ -490,6 +519,7 @@ class Edit extends React.Component {
             rowKey={record => {
               return record.name;
             }}
+            loading={this.state.columnsLoading}
             pagination={false}
             bordered
             columns={this.state.columnsColumns}
