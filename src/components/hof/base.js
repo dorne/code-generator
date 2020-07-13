@@ -31,7 +31,8 @@ const getBreadCrumbList = (routes, pathname, params, arr = []) => {
     let current = routes.find(x => x.routeMateData.id === data.routeMateData.pid);
     console.log('当前页路径');
     console.log(current);
-    return getBreadCrumbList(routes, current.routeMateData.path, params, arr);
+    const path = typeof current.routeMateData.match === 'string' ? current.routeMateData.match : current.routeMateData.match(params);
+    return getBreadCrumbList(routes, path, params, arr);
   }
 };
 

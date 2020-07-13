@@ -723,6 +723,8 @@ class Edit extends React.Component {
             {this.state.editMode ? (
               <Panel header="任务" key="5">
                 <Space style={{ marginBottom: 16 }}>
+                  <Button onClick={() => this.props.history.push(`/project/edit/${this.state.folderName}/task/add`)}>新建任务</Button>
+                  <Button>拉取表</Button>
                   <Button>拉取表</Button>
                 </Space>
 
