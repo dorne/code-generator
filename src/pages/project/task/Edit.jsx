@@ -104,6 +104,7 @@ class Edit extends React.Component {
     let formData = {
       id: new Date().getTime() + '',
       folderName: folderName,
+      saveName: "{{table.convertName}}"
     };
     if (taskId) {
       const projectData = folderName ? dorne_code_gen.appUtils.getProject(folderName) : {};
@@ -253,6 +254,17 @@ class Edit extends React.Component {
           <Form.Item
             name="savePath"
             label="模版生成路径"
+            rules={[
+              {
+                required: true,
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="saveName"
+            label="生成文件名"
             rules={[
               {
                 required: true,

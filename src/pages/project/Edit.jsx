@@ -133,25 +133,40 @@ class Edit extends React.Component {
       ),
   });
 
-  taskBuild = async (record) => {
+  taskBuild = async record => {
+    const tablePrefix = this.formRef.current.getFieldValue('tablePrefix')
     const database = this.formRef.current.getFieldValue('database');
     const uri = this.formRef.current.getFieldValue('uri');
+
+    console.log('taskBuild');
 
     this.state.filterData.forEach(async function (table, index) {
       const db = dorne_code_gen.appUtils.databaseAddon(database);
       const columns = await db.getColumns(uri, table.name);
+
+      table.convertName = table.name
+      if(tablePrefix && table.name.startsWith(tablePrefix)){
+        table.convertName = table.name.substr(tablePrefix.length, table.name.length);
+      }
+
       console.log('----------taskBuild---------');
       console.log(table);
       console.log(columns);
+      console.log(tablePrefix)
 
       const text = dorne_code_gen.appUtils.artTemplate().render(record.code, {
         table: table,
         columns: columns,
       });
 
-      const path = dorne_code_gen.path.join(record.savePath, `/${table.name}.js`);
+      const saveName = dorne_code_gen.appUtils.artTemplate().render(record.saveName, {
+        table: table,
+        columns: columns,
+      });
+
+      const path = dorne_code_gen.path.join(record.savePath, `/${saveName}`);
       dorne_code_gen.fs.writeFileSync(path, text, 'utf-8');
-    })
+    });
   };
 
   constructor(props) {
@@ -755,6 +770,9 @@ class Edit extends React.Component {
                       </>
                     }
                   />
+                </Form.Item>
+                <Form.Item name="tablePrefix" label="表前缀">
+                  <Input />
                 </Form.Item>
               </Panel>
             ) : null}
