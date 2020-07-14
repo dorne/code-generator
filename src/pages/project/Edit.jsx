@@ -10,6 +10,7 @@ import {
   DeleteOutlined,
   ReloadOutlined,
   RestOutlined,
+  SettingOutlined
 } from '@ant-design/icons';
 
 import Highlighter from 'react-highlight-words';
@@ -186,14 +187,6 @@ class Edit extends React.Component {
       ],
       columnsLoading: true,
       taskData: [
-        {
-          name: '任务1',
-          comment: '备注',
-        },
-        {
-          name: '任务12',
-          comment: '备注',
-        },
       ],
       taskColumns: [
         {
@@ -203,10 +196,10 @@ class Edit extends React.Component {
           ...this.getColumnSearchProps('name'),
         },
         {
-          title: '备注',
-          dataIndex: 'comment',
-          key: 'comment',
-          ...this.getColumnSearchProps('comment'),
+          title: '代码格式',
+          dataIndex: 'codeLang',
+          key: 'codeLang',
+          ...this.getColumnSearchProps('codeLang'),
         },
         {
           title: '操作',
@@ -219,9 +212,9 @@ class Edit extends React.Component {
                   type="primary"
                   shape="circle"
                   size="small"
-                  icon={<SyncOutlined />}
+                  icon={<SettingOutlined />}
                   onClick={() => {
-                    alert('任务名');
+                    this.props.history.push(`/project/edit/${this.state.folderName}/task/edit/${record.id}`)
                   }}
                 />
               </Tooltip>
@@ -430,10 +423,12 @@ class Edit extends React.Component {
 
     const projectData = folderName ? dorne_code_gen.appUtils.getProject(folderName) : {};
     const filterData = projectData.filterData ? projectData.filterData : [];
+    const taskData = projectData.taskData ? projectData.taskData : [];
     const collapseKeys = projectData.collapseKeys ? projectData.collapseKeys : ['1'];
     this.setState({
       collapseKeys: collapseKeys,
       filterData: filterData,
+      taskData: taskData,
       projectData: projectData,
       folderName: folderName,
     });

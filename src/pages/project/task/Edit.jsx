@@ -103,14 +103,14 @@ class Edit extends React.Component {
 
     const taskDataCollect = collect(obj.taskData);
 
-    const id = values.id
-    const data = values
-    data.createTime = sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
-    data.updateTime = sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+    const id = values.id;
+    const data = values;
+    data.createTime = sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss');
+    data.updateTime = sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss');
 
     if (taskDataCollect.where('id', id).all().length > 0) {
-        taskDataCollect.map(item => {
-        if(item.id === id){
+      taskDataCollect.map(item => {
+        if (item.id === id) {
           delete data['folderName'];
           delete data['id'];
           delete data['createTime'];
@@ -118,10 +118,10 @@ class Edit extends React.Component {
         }
         return item;
       });
-      console.log('edit')
+      console.log('edit');
       obj.taskData = taskDataCollect.all();
     } else {
-      console.log('add')
+      console.log('add');
       delete data['folderName'];
       obj.taskData.push(data);
     }
@@ -129,6 +129,8 @@ class Edit extends React.Component {
     const res = dorne_code_gen.appUtils.saveProject(this.props.match.params.folderName, obj);
     if (res.code === 1) {
       message.success(`${res.msg}`);
+      const list = this.props.globalProps.breadcrumb;
+      this.props.history.push(list[list.length - 2].routeMateData.match);
     } else {
       message.error(`${res.msg}`);
     }
@@ -140,7 +142,8 @@ class Edit extends React.Component {
   };
 
   onBack = () => {
-    this.props.history.push('/project/list');
+    const list = this.props.globalProps.breadcrumb;
+    this.props.history.push(list[list.length - 2].routeMateData.match);
   };
 
   drawerClose = () => {
@@ -195,8 +198,8 @@ class Edit extends React.Component {
             <Input />
           </Form.Item>
           <Form.Item
-            name="memo"
-            label="备注"
+            name="name"
+            label="任务名"
             rules={[
               {
                 required: true,
@@ -207,7 +210,7 @@ class Edit extends React.Component {
           </Form.Item>
           <Form.Item
             name="codeLang"
-            label="编程语言"
+            label="代码格式"
             rules={[
               {
                 required: true,
