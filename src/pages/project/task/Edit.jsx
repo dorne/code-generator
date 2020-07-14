@@ -10,7 +10,9 @@ import 'ace-builds/src-noconflict/mode-jsx';
 import 'ace-builds/src-min-noconflict/ext-searchbox';
 import 'ace-builds/src-min-noconflict/ext-language_tools';
 
-import { Form, Input, Button, Select } from 'antd';
+import { Form, Input, Button, Select, Tooltip, Drawer } from 'antd';
+
+import { FullscreenOutlined } from '@ant-design/icons';
 
 const languages = [
   'javascript',
@@ -83,6 +85,7 @@ class Edit extends React.Component {
     this.state = {
       langList: languages,
       codeLang: 'java',
+      drawerVisible: false,
     };
   }
 
@@ -102,10 +105,40 @@ class Edit extends React.Component {
     this.props.history.push('/project/list');
   };
 
+  drawerClose = () => {
+    this.setState({
+      drawerVisible: false,
+    });
+    this.refs.reactAceComponent.editor.resize()
+  };
+
+  drawerOpen = () => {
+    this.setState({
+      drawerVisible: true,
+    });
+    this.refs.reactAceComponent.editor.resize()
+  };
+
+  drawerAceEditorFixHeight = () => {
+    this.refs.reactAceComponent.editor.resize()
+  }
+
+  onAceEditorChange = (v) => {
+    this.setState({
+      code: v,
+    });
+  }
+
+  onDrawerAceEditorChange = (v) => {
+    this.formRef.current.setFieldsValue({
+      code: v
+    })
+  }
+
   render() {
     return (
       <React.Fragment>
-        <Form {...layout} ref={this.formRef} name="control-ref" onFinish={this.onFinish}>
+        <Form {...layout} ref={this.formRef} name="control-ref" onFinish={this.onFinish} initialValues={{code: this.state.code}} >
           <Form.Item
             name="memo"
             label="备注"
@@ -136,9 +169,19 @@ class Edit extends React.Component {
               })}
             </Select>
           </Form.Item>
+
           <Form.Item
             name="code"
-            label="代码"
+            label={
+              <React.Fragment>
+                代码
+                <Tooltip title="全屏">
+                  <FullscreenOutlined
+                    onClick={this.drawerOpen}
+                  />
+                </Tooltip>
+              </React.Fragment>
+            }
             rules={[
               {
                 required: true,
@@ -150,9 +193,8 @@ class Edit extends React.Component {
               mode={this.state.codeLang}
               value={this.state.code}
               theme="monokai"
-              name="app_code_editor"
-              onLoad={this.onLoad}
-              onChange={this.onChange}
+              name="from_code_editor"
+              onChange={this.onAceEditorChange}
               fontSize={14}
               showPrintMargin={false}
               showGutter={true}
@@ -177,6 +219,39 @@ class Edit extends React.Component {
             </Button>
           </Form.Item>
         </Form>
+        <Drawer
+          title="代码编辑"
+          width={'100%'}
+          height={'100%'}
+          closable={true}
+          forceRender={true}
+          visible={this.state.drawerVisible}
+          onClose={this.drawerClose}
+        >
+          <AceEditor
+              placeholder="请编写代码"
+              mode={this.state.codeLang}
+              value={this.state.code}
+              theme="monokai"
+              name="drawer_code_editor"
+              onChange={this.onDrawerAceEditorChange}
+              onBlur={this.drawerAceEditorFixHeight}
+              onFocus={this.drawerAceEditorFixHeight}
+              fontSize={14}
+              showPrintMargin={false}
+              showGutter={true}
+              highlightActiveLine={true}
+              style={{ width: '100%', height: '100%' }}
+              ref="reactAceComponent"
+              setOptions={{
+                enableBasicAutocompletion: true,
+                enableLiveAutocompletion: true,
+                enableSnippets: true,
+                showLineNumbers: true,
+                tabSize: 2,
+              }}
+            />
+        </Drawer>
       </React.Fragment>
     );
   }
