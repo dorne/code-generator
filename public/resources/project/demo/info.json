@@ -1,6 +1,42 @@
 {
-    "name" : "演示项目",
-    "sortCode" : 0,
-    "createTime" : "2020-06-30 09:50:12",
-    "updateTime" : "2020-06-30 09:50:12"
+    "database": "mysql",
+    "uri": "mysql://root:root@127.0.0.1:8889/test_db",
+    "tablePrefix": "dj_",
+    "createTime": "2020-07-14 22:32:33",
+    "updateTime": "2020-07-14 22:32:33",
+    "sortCode": "0",
+    "name": "演示项目",
+    "filterData": [
+        {
+            "comment": "[框架]管理员表",
+            "name": "dj_admin"
+        },
+        {
+            "comment": "[框架]管理员日志表",
+            "name": "dj_admin_log"
+        },
+        {
+            "comment": "[自建]原始数据",
+            "name": "dj_a_demo"
+        },
+        {
+            "comment": "[框架]权限分组表",
+            "name": "dj_admin_shop_access"
+        }
+    ],
+    "collapseKeys": [
+        "5"
+    ],
+    "taskData": [
+        {
+            "id": "1594737213017",
+            "name": "模型",
+            "codeLang": "php",
+            "savePath": "/Users/Dorne/code-generator/project/huiji/template",
+            "saveName": "{{table.convertName | underline2hump | first2upper}}Controller.js",
+            "code": "<?php\n\n{{set $columnsLen = columns?.length}}\n\nnamespace app\\admin\\model;\n\nuse think\\Model;\nuse think\\Session;\n\nclass {{table.convertName | underline2hump | first2upper}} extends Model\n{\n\n    // 开启自动写入时间戳字段\n    protected $autoWriteTimestamp = 'int';\n    // 定义时间戳字段名\n    protected $createTime = 'createtime';\n    protected $updateTime = 'updatetime';\n    \n    //总字段{{$columnsLen}}\n    protected $test = [{{each columns}}\n      //当前下标{{$index}}\n      '{{$value.name | underline2hump | first2upper}}'{{if $index+1<$columnsLen}},{{else}}{{/if}}{{/each}}  \n    ];\n}\n",
+            "createTime": "2020-07-14 22:34:27",
+            "updateTime": "2020-07-14 23:18:46"
+        }
+    ]
 }
