@@ -109,36 +109,45 @@ class Edit extends React.Component {
     this.setState({
       drawerVisible: false,
     });
-    this.refs.reactAceComponent.editor.resize()
+    this.refs.reactAceComponent.editor.resize();
   };
 
   drawerOpen = () => {
     this.setState({
       drawerVisible: true,
     });
-    this.refs.reactAceComponent.editor.resize()
+    this.refs.reactAceComponent.editor.resize();
   };
 
   drawerAceEditorFixHeight = () => {
-    this.refs.reactAceComponent.editor.resize()
-  }
+    this.refs.reactAceComponent.editor.resize();
+  };
 
-  onAceEditorChange = (v) => {
+  onAceEditorChange = v => {
     this.setState({
       code: v,
     });
-  }
+  };
 
-  onDrawerAceEditorChange = (v) => {
+  onDrawerAceEditorChange = v => {
     this.formRef.current.setFieldsValue({
-      code: v
-    })
-  }
+      code: v,
+    });
+  };
 
   render() {
     return (
       <React.Fragment>
-        <Form {...layout} ref={this.formRef} name="control-ref" onFinish={this.onFinish} initialValues={{code: this.state.code}} >
+        <Form
+          {...layout}
+          ref={this.formRef}
+          name="control-ref"
+          onFinish={this.onFinish}
+          initialValues={{ code: this.state.code, folderName: this.props.match.params.folderName}}
+        >
+          <Form.Item style={{ display: 'none' }} name="folderName" label="项目文件">
+            <Input />
+          </Form.Item>
           <Form.Item
             name="memo"
             label="备注"
@@ -176,15 +185,14 @@ class Edit extends React.Component {
               <React.Fragment>
                 代码
                 <Tooltip title="全屏">
-                  <FullscreenOutlined
-                    onClick={this.drawerOpen}
-                  />
+                  <FullscreenOutlined style={{ color: '##ff4d4f' }} onClick={this.drawerOpen} />
                 </Tooltip>
               </React.Fragment>
             }
             rules={[
               {
                 required: true,
+                message: '请输入代码',
               },
             ]}
           >
@@ -199,7 +207,7 @@ class Edit extends React.Component {
               showPrintMargin={false}
               showGutter={true}
               highlightActiveLine={true}
-              style={{ width: '100%', height: 300 }}
+              style={{ width: '100%', height: 600 }}
               setOptions={{
                 enableBasicAutocompletion: true,
                 enableLiveAutocompletion: true,
@@ -225,32 +233,33 @@ class Edit extends React.Component {
           height={'100%'}
           closable={true}
           forceRender={true}
+          placement="top"
           visible={this.state.drawerVisible}
           onClose={this.drawerClose}
         >
           <AceEditor
-              placeholder="请编写代码"
-              mode={this.state.codeLang}
-              value={this.state.code}
-              theme="monokai"
-              name="drawer_code_editor"
-              onChange={this.onDrawerAceEditorChange}
-              onBlur={this.drawerAceEditorFixHeight}
-              onFocus={this.drawerAceEditorFixHeight}
-              fontSize={14}
-              showPrintMargin={false}
-              showGutter={true}
-              highlightActiveLine={true}
-              style={{ width: '100%', height: '100%' }}
-              ref="reactAceComponent"
-              setOptions={{
-                enableBasicAutocompletion: true,
-                enableLiveAutocompletion: true,
-                enableSnippets: true,
-                showLineNumbers: true,
-                tabSize: 2,
-              }}
-            />
+            placeholder="请编写代码"
+            mode={this.state.codeLang}
+            value={this.state.code}
+            theme="monokai"
+            name="drawer_code_editor"
+            onChange={this.onDrawerAceEditorChange}
+            onBlur={this.drawerAceEditorFixHeight}
+            onFocus={this.drawerAceEditorFixHeight}
+            fontSize={14}
+            showPrintMargin={false}
+            showGutter={true}
+            highlightActiveLine={true}
+            style={{ width: '100%', height: '100%' }}
+            ref="reactAceComponent"
+            setOptions={{
+              enableBasicAutocompletion: true,
+              enableLiveAutocompletion: true,
+              enableSnippets: true,
+              showLineNumbers: true,
+              tabSize: 2,
+            }}
+          />
         </Drawer>
       </React.Fragment>
     );

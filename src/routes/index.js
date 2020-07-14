@@ -11,7 +11,7 @@ export const mainRoutes = [
       id: 1,
       pid: 0,
       isMenu: true,
-      title: '项目',
+      title: '项目列表',
       path: '/project/list',
       match: '/project/list',
     },

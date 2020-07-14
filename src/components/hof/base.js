@@ -48,7 +48,7 @@ export function base(WrappedComponent) {
     componentDidMount() {
       //设置路由匹配的参数
       let params = {};
-      this.props.globalActions.matchActions.add({});
+      //this.props.globalActions.matchActions.add({});
       if (notNull(this.props) && notNull(this.props.match) && notNull(this.props.match.params)) {
         this.props.globalActions.matchActions.add(this.props.match);
         params = this.props.match.params
