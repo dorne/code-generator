@@ -60,6 +60,19 @@ export const mainRoutes = [
   },
   {
     routeMateData: {
+      id: 8,
+      pid: 6,
+      isMenu: false,
+      title: '编辑任务',
+      path: '/project/edit/demo/task/edit/1',
+      match: ({ folderName, taskId }) => `/project/edit/${folderName}/task/edit/${taskId}`,
+    },
+    path: '/project/edit/:folderName/task/edit/:taskId',
+    component: TaskEdit,
+    exact: true,
+  },
+  {
+    routeMateData: {
       id: 2,
       pid: 0,
       isMenu: true,

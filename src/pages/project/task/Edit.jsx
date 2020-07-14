@@ -105,12 +105,15 @@ class Edit extends React.Component {
 
     const id = values.id
     const data = values
+    data.createTime = sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+    data.updateTime = sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
 
     if (taskDataCollect.where('id', id).all().length > 0) {
         taskDataCollect.map(item => {
         if(item.id === id){
           delete data['folderName'];
           delete data['id'];
+          delete data['createTime'];
           return Object.assign(item, data);
         }
         return item;
