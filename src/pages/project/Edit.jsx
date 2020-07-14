@@ -11,6 +11,7 @@ import {
   ReloadOutlined,
   RestOutlined,
   SettingOutlined,
+  PlusOutlined,
 } from '@ant-design/icons';
 
 import Highlighter from 'react-highlight-words';
@@ -513,7 +514,6 @@ class Edit extends React.Component {
   };
 
   onTaskDelSelectRow = (record = null) => {
-    debugger
     const filterSelRowKeys = record ? [record.id] : this.state.taskSelRowKeys;
 
     const taskData = this.state.taskData.filter(item => !filterSelRowKeys.includes(item.id));
@@ -533,6 +533,14 @@ class Edit extends React.Component {
   };
 
   filterTableReload = () => {
+    let fieldsValue = dorne_code_gen.appUtils.getProject(this.state.folderName);
+    this.setState({
+      filterData: fieldsValue.filterData,
+    });
+  };
+
+
+  taskTableReload = () => {
     let fieldsValue = dorne_code_gen.appUtils.getProject(this.state.folderName);
     this.setState({
       taskData: fieldsValue.taskData,
@@ -820,11 +828,19 @@ class Edit extends React.Component {
               <Panel header="任务" key="5">
                 <Space style={{ marginBottom: 16 }}>
                   <Button
+                    type="primary"
+                    icon={<PlusOutlined />}
                     onClick={() =>
                       this.props.history.push(`/project/edit/${this.state.folderName}/task/add`)
                     }
                   >
-                    新建任务
+                    新建
+                  </Button>
+                  <Button
+                    onClick={this.taskTableReload}
+                    icon={<ReloadOutlined />}
+                  >
+                    刷新
                   </Button>
                   <Popconfirm
                     placement="bottomRight"
