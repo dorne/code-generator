@@ -250,7 +250,17 @@ class Edit extends React.Component {
               })}
             </Select>
           </Form.Item>
-
+          <Form.Item
+            name="savePath"
+            label="模版生成路径"
+            rules={[
+              {
+                required: true,
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
           <Form.Item
             name="code"
             label={

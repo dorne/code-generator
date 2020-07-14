@@ -12,6 +12,7 @@ import {
   RestOutlined,
   SettingOutlined,
   PlusOutlined,
+  SendOutlined,
 } from '@ant-design/icons';
 
 import Highlighter from 'react-highlight-words';
@@ -132,6 +133,27 @@ class Edit extends React.Component {
       ),
   });
 
+  taskBuild = async (record) => {
+    const database = this.formRef.current.getFieldValue('database');
+    const uri = this.formRef.current.getFieldValue('uri');
+
+    this.state.filterData.forEach(async function (table, index) {
+      const db = dorne_code_gen.appUtils.databaseAddon(database);
+      const columns = await db.getColumns(uri, table.name);
+      console.log('----------taskBuild---------');
+      console.log(table);
+      console.log(columns);
+
+      const text = dorne_code_gen.appUtils.artTemplate().render(record.code, {
+        table: table,
+        columns: columns,
+      });
+
+      const path = dorne_code_gen.path.join(record.savePath, `/${table.name}.js`);
+      dorne_code_gen.fs.writeFileSync(path, text, 'utf-8');
+    })
+  };
+
   constructor(props) {
     super(props);
     this.state = {
@@ -208,6 +230,14 @@ class Edit extends React.Component {
           key: 'operation',
           render: record => (
             <Space size="middle">
+              <Tooltip title="生成">
+                <Button
+                  shape="circle"
+                  size="small"
+                  icon={<SendOutlined />}
+                  onClick={this.taskBuild.bind(this, record)}
+                />
+              </Tooltip>
               <Tooltip title="配置">
                 <Button
                   type="primary"
@@ -539,7 +569,6 @@ class Edit extends React.Component {
     });
   };
 
-
   taskTableReload = () => {
     let fieldsValue = dorne_code_gen.appUtils.getProject(this.state.folderName);
     this.setState({
@@ -836,10 +865,7 @@ class Edit extends React.Component {
                   >
                     新建
                   </Button>
-                  <Button
-                    onClick={this.taskTableReload}
-                    icon={<ReloadOutlined />}
-                  >
+                  <Button onClick={this.taskTableReload} icon={<ReloadOutlined />}>
                     刷新
                   </Button>
                   <Popconfirm
