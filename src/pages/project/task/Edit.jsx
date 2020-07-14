@@ -90,11 +90,36 @@ class Edit extends React.Component {
       langList: languages,
       codeLang: 'java',
       drawerVisible: false,
-      id: new Date().getTime(),
+      code: '',
     };
   }
 
   componentDidMount() {}
+
+  componentWillMount() {
+    const folderName = this.props.match.params.folderName;
+    const taskId = this.props.match.params.taskId;
+    this.setState({ editMode: taskId ? true : false });
+
+    let formData = {
+      id: new Date().getTime() + '',
+      folderName: folderName,
+    };
+    if (taskId) {
+      const projectData = folderName ? dorne_code_gen.appUtils.getProject(folderName) : {};
+      const taskData = projectData.taskData ? projectData.taskData : [];
+
+      const taskDataCollect = collect(taskData);
+      formData = taskDataCollect.where('id', taskId).first();
+      formData = formData ? formData : {};
+      this.setState({ code: formData.code ? formData.code : '' });
+    }
+
+    this.setState({
+      formData: formData,
+      folderName: folderName,
+    });
+  }
 
   onFinish = values => {
     /*global dorne_code_gen*/
@@ -102,6 +127,8 @@ class Edit extends React.Component {
     const obj = dorne_code_gen.appUtils.getProject(this.props.match.params.folderName);
 
     const taskDataCollect = collect(obj.taskData);
+    console.log('---------````````values');
+    console.log(values);
 
     const id = values.id;
     const data = values;
@@ -118,10 +145,10 @@ class Edit extends React.Component {
         }
         return item;
       });
-      console.log('edit');
+      console.log('---------edit');
       obj.taskData = taskDataCollect.all();
     } else {
-      console.log('add');
+      console.log('---------add');
       delete data['folderName'];
       obj.taskData.push(data);
     }
@@ -177,11 +204,7 @@ class Edit extends React.Component {
   };
 
   render() {
-    const formData = {
-      id: this.state.id,
-      code: this.state.code,
-      folderName: this.props.match.params.folderName,
-    };
+    const formData = this.state.formData;
     return (
       <React.Fragment>
         <Form

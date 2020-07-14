@@ -10,7 +10,7 @@ import {
   DeleteOutlined,
   ReloadOutlined,
   RestOutlined,
-  SettingOutlined
+  SettingOutlined,
 } from '@ant-design/icons';
 
 import Highlighter from 'react-highlight-words';
@@ -186,8 +186,8 @@ class Edit extends React.Component {
         },
       ],
       columnsLoading: true,
-      taskData: [
-      ],
+      taskSelRowKeys: [],
+      taskData: [],
       taskColumns: [
         {
           title: '任务名',
@@ -214,10 +214,29 @@ class Edit extends React.Component {
                   size="small"
                   icon={<SettingOutlined />}
                   onClick={() => {
-                    this.props.history.push(`/project/edit/${this.state.folderName}/task/edit/${record.id}`)
+                    this.props.history.push(
+                      `/project/edit/${this.state.folderName}/task/edit/${record.id}`,
+                    );
                   }}
                 />
               </Tooltip>
+              <Popconfirm
+                placement="bottomRight"
+                title={`确定要删除[${record.name}]任务吗?`}
+                onConfirm={this.onTaskDelSelectRow.bind(this, record)}
+                okText="删除"
+                cancelText="取消"
+              >
+                <Tooltip title="删除">
+                  <Button
+                    danger
+                    type="primary"
+                    shape="circle"
+                    icon={<DeleteOutlined />}
+                    size="small"
+                  />
+                </Tooltip>
+              </Popconfirm>
             </Space>
           ),
         },
@@ -420,7 +439,6 @@ class Edit extends React.Component {
     const folderName = this.props.match.params.folderName;
     this.setState({ editMode: folderName ? true : false });
 
-
     const projectData = folderName ? dorne_code_gen.appUtils.getProject(folderName) : {};
     const filterData = projectData.filterData ? projectData.filterData : [];
     const taskData = projectData.taskData ? projectData.taskData : [];
@@ -444,6 +462,10 @@ class Edit extends React.Component {
 
   onFilterSelectChange = selectedRowKeys => {
     this.setState({ filterSelRowKeys: selectedRowKeys });
+  };
+
+  onTaskSelectChange = selectedRowKeys => {
+    this.setState({ taskSelRowKeys: selectedRowKeys });
   };
 
   onAddFilterTable = () => {
@@ -490,10 +512,30 @@ class Edit extends React.Component {
     }
   };
 
+  onTaskDelSelectRow = (record = null) => {
+    debugger
+    const filterSelRowKeys = record ? [record.id] : this.state.taskSelRowKeys;
+
+    const taskData = this.state.taskData.filter(item => !filterSelRowKeys.includes(item.id));
+
+    let fieldsValue = dorne_code_gen.appUtils.getProject(this.state.folderName);
+    fieldsValue.taskData = taskData;
+
+    const res = dorne_code_gen.appUtils.saveProject(this.state.folderName, fieldsValue);
+    if (res.code === 1) {
+      this.setState({
+        taskData: fieldsValue.taskData,
+      });
+      message.success(`${res.msg}`);
+    } else {
+      message.error(`${res.msg}`);
+    }
+  };
+
   filterTableReload = () => {
     let fieldsValue = dorne_code_gen.appUtils.getProject(this.state.folderName);
     this.setState({
-      filterData: fieldsValue.filterData,
+      taskData: fieldsValue.taskData,
     });
   };
 
@@ -521,7 +563,22 @@ class Edit extends React.Component {
     } else {
       message.error(`${res.msg}`);
     }
-  }
+  };
+
+  onTaskClear = () => {
+    let fieldsValue = dorne_code_gen.appUtils.getProject(this.state.folderName);
+    fieldsValue.taskData = [];
+
+    const res = dorne_code_gen.appUtils.saveProject(this.state.folderName, fieldsValue);
+    if (res.code === 1) {
+      this.setState({
+        taskData: fieldsValue.taskData,
+      });
+      message.success(`${res.msg}`);
+    } else {
+      message.error(`${res.msg}`);
+    }
+  };
 
   render() {
     const btnText = this.state.editMode ? '编辑' : '添加';
@@ -540,6 +597,11 @@ class Edit extends React.Component {
     const filterRowSelection = {
       selectedRowKeys: this.state.filterSelRowKeys,
       onChange: this.onFilterSelectChange,
+    };
+
+    const taskRowSelection = {
+      selectedRowKeys: this.state.taskSelRowKeys,
+      onChange: this.onTaskSelectChange,
     };
 
     return (
@@ -728,11 +790,7 @@ class Edit extends React.Component {
                     okText="删除"
                     cancelText="取消"
                   >
-                    <Button
-                      type="primary"
-                      danger
-                      icon={<RestOutlined />}
-                    >
+                    <Button type="primary" danger icon={<RestOutlined />}>
                       清空
                     </Button>
                   </Popconfirm>
@@ -768,14 +826,41 @@ class Edit extends React.Component {
                   >
                     新建任务
                   </Button>
-                  <Button>拉取表</Button>
-                  <Button>拉取表</Button>
+                  <Popconfirm
+                    placement="bottomRight"
+                    title={`确认要删除[${this.state.taskSelRowKeys.length}个]任务吗?`}
+                    onConfirm={this.onTaskDelSelectRow.bind(this, null)}
+                    okText="删除"
+                    cancelText="取消"
+                    disabled={!(this.state.taskSelRowKeys.length > 0)}
+                  >
+                    <Button
+                      type="primary"
+                      danger
+                      icon={<DeleteOutlined />}
+                      disabled={!(this.state.taskSelRowKeys.length > 0)}
+                    >
+                      删除
+                    </Button>
+                  </Popconfirm>
+                  <Popconfirm
+                    placement="bottomRight"
+                    title={`确认要清空任务吗?`}
+                    onConfirm={this.onTaskClear}
+                    okText="删除"
+                    cancelText="取消"
+                  >
+                    <Button type="primary" danger icon={<RestOutlined />}>
+                      清空
+                    </Button>
+                  </Popconfirm>
                 </Space>
 
                 <Table
                   rowKey={record => {
-                    return record.name;
+                    return record.id;
                   }}
+                  rowSelection={taskRowSelection}
                   pagination={{
                     showQuickJumper: true,
                     showSizeChanger: true,
