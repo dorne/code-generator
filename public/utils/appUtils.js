@@ -64,6 +64,9 @@ var getProject = function (folderName) {
   if(jsonObj.collapseKeys === undefined){
     jsonObj.collapseKeys = []
   }
+  if(jsonObj.taskData === undefined){
+    jsonObj.taskData = []
+  }
   return jsonObj
 };
 

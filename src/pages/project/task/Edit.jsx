@@ -10,7 +10,11 @@ import 'ace-builds/src-noconflict/mode-jsx';
 import 'ace-builds/src-min-noconflict/ext-searchbox';
 import 'ace-builds/src-min-noconflict/ext-language_tools';
 
-import { Form, Input, Button, Select, Tooltip, Drawer } from 'antd';
+import { Form, Input, Button, Select, Tooltip, Drawer, message } from 'antd';
+
+import * as sd from 'silly-datetime';
+
+import * as collect from 'collect.js';
 
 import { FullscreenOutlined } from '@ant-design/icons';
 
@@ -86,14 +90,45 @@ class Edit extends React.Component {
       langList: languages,
       codeLang: 'java',
       drawerVisible: false,
+      id: new Date().getTime(),
     };
   }
 
   componentDidMount() {}
 
   onFinish = values => {
-    console.log('this.onFinish');
-    console.log(values);
+    /*global dorne_code_gen*/
+    /*eslint no-undef: "error"*/
+    const obj = dorne_code_gen.appUtils.getProject(this.props.match.params.folderName);
+
+    const taskDataCollect = collect(obj.taskData);
+
+    const id = values.id
+    const data = values
+
+    if (taskDataCollect.where('id', id).all().length > 0) {
+        taskDataCollect.map(item => {
+        if(item.id === id){
+          delete data['folderName'];
+          delete data['id'];
+          return Object.assign(item, data);
+        }
+        return item;
+      });
+      console.log('edit')
+      obj.taskData = taskDataCollect.all();
+    } else {
+      console.log('add')
+      delete data['folderName'];
+      obj.taskData.push(data);
+    }
+
+    const res = dorne_code_gen.appUtils.saveProject(this.props.match.params.folderName, obj);
+    if (res.code === 1) {
+      message.success(`${res.msg}`);
+    } else {
+      message.error(`${res.msg}`);
+    }
   };
 
   onCodeLangChange = val => {
@@ -136,6 +171,11 @@ class Edit extends React.Component {
   };
 
   render() {
+    const formData = {
+      id: this.state.id,
+      code: this.state.code,
+      folderName: this.props.match.params.folderName,
+    };
     return (
       <React.Fragment>
         <Form
@@ -143,9 +183,12 @@ class Edit extends React.Component {
           ref={this.formRef}
           name="control-ref"
           onFinish={this.onFinish}
-          initialValues={{ code: this.state.code, folderName: this.props.match.params.folderName}}
+          initialValues={formData}
         >
           <Form.Item style={{ display: 'none' }} name="folderName" label="项目文件">
+            <Input />
+          </Form.Item>
+          <Form.Item style={{ display: 'none' }} name="id" label="id">
             <Input />
           </Form.Item>
           <Form.Item
