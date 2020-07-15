@@ -1,5 +1,6 @@
 import React from 'react';
 import './App.css';
+import conf from '../package.json'
 
 import { Layout, Menu, Breadcrumb } from 'antd';
 
@@ -89,7 +90,7 @@ class App extends React.Component {
             {/* {match} */}
           </div>
         </Content>
-        <Footer style={{ textAlign: 'center' }}>Copyright © 2020 多恩云. All rights reserved.</Footer>
+        <Footer style={{ textAlign: 'center' }}>Copyright © 2020 多恩云. All rights reserved. ver:{conf.version}</Footer>
       </Layout>
     );
   }

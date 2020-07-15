@@ -1,6 +1,7 @@
 import React from 'react';
 
 import {baseComponent} from '../components/hof/base'
+import conf from '../../package.json'
 
 class About extends React.Component {
   constructor(props) {
@@ -21,7 +22,7 @@ class About extends React.Component {
     console.log('About end render');
     return (
       <div>
-        about {this.state.abouut}
+        版本:{conf.version}
       </div>
     );
   }
