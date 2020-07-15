@@ -44,7 +44,7 @@ class App extends React.Component {
     return (
       <Layout>
         <Header style={{ position: 'fixed', zIndex: 1, width: '100%' }}>
-          <div className="logo logo-text">code-generator</div>
+          <div className="logo logo-text">多恩代码生成器</div>
           <Menu
             theme="dark"
             mode="horizontal"
@@ -86,10 +86,10 @@ class App extends React.Component {
               })}
               <Redirect path="/" to="/project/list"></Redirect>
             </Switch>
-            {match}
+            {/* {match} */}
           </div>
         </Content>
-        <Footer style={{ textAlign: 'center' }}>Ant Design ©2018 Created by Ant UED</Footer>
+        <Footer style={{ textAlign: 'center' }}>Copyright © 2020 多恩云. All rights reserved.</Footer>
       </Layout>
     );
   }
