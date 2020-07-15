@@ -1,7 +1,9 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, Menu} = require('electron');
 const path = require('path');
 const isDev = require('electron-is-dev');
+
+Menu.setApplicationMenu(null)
 
 //修复 electron v9
 //Error: Loading non-context-aware native module in renderer
@@ -19,6 +21,9 @@ function createWindow() {
     height: 1000,
     minWidth: 1200,
     minHeight: 1000,
+    // autoHideMenuBar: true,
+    // allowRunningInsecureContent: true,
+    // experimentalCanvasFeatures: true,
     // useContentSize: true,
     // titleBarStyle: 'hidden',
     // frame: false,
