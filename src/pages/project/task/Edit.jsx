@@ -76,8 +76,8 @@ const layout = {
 };
 const tailLayout = {
   wrapperCol: {
-    offset: 10,
-    span: 14,
+    span: 24,
+    style: {textAlign: 'right'}
   },
 };
 

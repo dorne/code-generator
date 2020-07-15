@@ -54,8 +54,8 @@ const layout = {
 };
 const tailLayout = {
   wrapperCol: {
-    offset: 10,
-    span: 14,
+    span: 24,
+    style: {textAlign: 'right'}
   },
 };
 
@@ -139,6 +139,10 @@ class Edit extends React.Component {
     const uri = this.formRef.current.getFieldValue('uri');
 
     console.log('taskBuild');
+
+    if(!this.state.filterData || this.state.filterData < 1){
+      message.error(`无候选表可生成`);
+    }
 
     this.state.filterData.forEach(async function (table, index) {
       const db = dorne_code_gen.appUtils.databaseAddon(database);
@@ -674,7 +678,7 @@ class Edit extends React.Component {
           initialValues={formData}
         >
           <Collapse onChange={this.oncollapseChange} defaultActiveKey={this.state.collapseKeys}>
-            <Panel header="项目基础设置" key="1">
+            <Panel header="项目基础设置" forceRender={true} key="1">
               <Form.Item style={{ display: 'none' }} name="createTime" label="创建时间">
                 <Input />
               </Form.Item>
@@ -732,7 +736,7 @@ class Edit extends React.Component {
               </Form.Item>
             </Panel>
             {this.state.editMode ? (
-              <Panel header="数据库配置" key="2">
+              <Panel header="数据库配置" forceRender={true} key="2">
                 <Form.Item
                   name="database"
                   label="数据库类型"
@@ -785,7 +789,7 @@ class Edit extends React.Component {
               </Panel>
             ) : null}
             {this.state.editMode ? (
-              <Panel header="表" key="3">
+              <Panel header="表" forceRender={true} key="3">
                 <Space style={{ marginBottom: 16 }}>
                   <Button
                     onClick={this.getTables}
@@ -824,7 +828,7 @@ class Edit extends React.Component {
               </Panel>
             ) : null}
             {this.state.editMode ? (
-              <Panel header="候选表" key="4">
+              <Panel header="候选表" forceRender={true} key="4">
                 <Space style={{ marginBottom: 16 }}>
                   <Button onClick={this.filterTableReload} icon={<ReloadOutlined />}>
                     刷新
@@ -880,7 +884,7 @@ class Edit extends React.Component {
               </Panel>
             ) : null}
             {this.state.editMode ? (
-              <Panel header="任务" key="5">
+              <Panel header="任务" forceRender={true} key="5">
                 <Space style={{ marginBottom: 16 }}>
                   <Button
                     type="primary"
