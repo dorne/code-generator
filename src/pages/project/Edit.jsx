@@ -134,7 +134,7 @@ class Edit extends React.Component {
   });
 
   taskBuild = async record => {
-    const tablePrefix = this.formRef.current.getFieldValue('tablePrefix')
+    const tablePrefix = this.formRef.current.getFieldValue('tablePrefix');
     const database = this.formRef.current.getFieldValue('database');
     const uri = this.formRef.current.getFieldValue('uri');
 
@@ -142,17 +142,22 @@ class Edit extends React.Component {
 
     this.state.filterData.forEach(async function (table, index) {
       const db = dorne_code_gen.appUtils.databaseAddon(database);
-      const columns = await db.getColumns(uri, table.name);
-
-      table.convertName = table.name
-      if(tablePrefix && table.name.startsWith(tablePrefix)){
+      let columns = [];
+      try {
+         columns = await db.getColumns(uri, table.name);
+      } catch (e) {
+        message.error(`生成表[${table.name}]错误:${e.message}`);
+        return false;
+      }
+      table.convertName = table.name;
+      if (tablePrefix && table.name.startsWith(tablePrefix)) {
         table.convertName = table.name.substr(tablePrefix.length, table.name.length);
       }
 
       console.log('----------taskBuild---------');
       console.log(table);
       console.log(columns);
-      console.log(tablePrefix)
+      console.log(tablePrefix);
 
       const text = dorne_code_gen.appUtils.artTemplate().render(record.code, {
         table: table,
@@ -377,6 +382,7 @@ class Edit extends React.Component {
       tablesReloadloading: true,
     });
 
+    let errMsg = null;
     try {
       const db = dorne_code_gen.appUtils.databaseAddon(database);
       let tables = await db.getTables(uri);
@@ -384,10 +390,12 @@ class Edit extends React.Component {
       this.setState({
         tablesData: tables,
       });
-    } catch (error) {}
+    } catch (error) {
+      errMsg = error.message;
+    }
 
     setTimeout(() => {
-      message.success(`拉取成功`);
+      errMsg ? message.error(errMsg) : message.success(`拉取成功`);
       this.setState({
         tablesReloadloading: false,
       });
