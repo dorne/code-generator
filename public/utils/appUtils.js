@@ -35,7 +35,8 @@ var getProjectList = function () {
 
   for (var i = 0; i < dirs.length; i++) {
     var value = dirs[i];
-    var folderName = value.substring(value.lastIndexOf('/') + 1, value.length);
+    var folderName = value.substring(value.lastIndexOf(path.sep) + 1, value.length);
+    console.log('目录', folderName)
     //不展示template项目文件,template为创建项目的模版目录
     if (folderName === 'template') continue;
     var infoPath = join(value, '/info.json');
@@ -55,7 +56,7 @@ var getProjectList = function () {
 };
 
 var getProject = function (folderName) {
-  var infoPath = path.join(homedir, `/${appFolder}/project/${folderName}/info.json`);
+  var infoPath = path.join(appUserPath, `/project/${folderName}/info.json`);
   var jsonStr = fs.readFileSync(infoPath, 'utf8');
   var jsonObj = JSON.parse(jsonStr);
   if(jsonObj.filterData === undefined){
@@ -71,7 +72,7 @@ var getProject = function (folderName) {
 };
 
 var saveProject = function (folderName, obj) {
-  var infoPath = path.join(homedir, `/${appFolder}/project/${folderName}/info.json`);
+  var infoPath = path.join(appUserPath, `/project/${folderName}/info.json`);
   try{
     fs.writeFileSync(infoPath, JSON.stringify(obj, undefined, 4), 'utf-8');
     return { code: 1, msg: '保存成功' };
@@ -140,7 +141,7 @@ var databaseAddon = function (dbType) {
 
 var databaseList = function () {
   let arrFiles = [];
-  fs.readdirSync('/Users/Dorne/code-generator/database').filter(function(f) {
+  fs.readdirSync(`${appUserPath}/database`).filter(function(f) {
     return f.endsWith('.js');
   })
   .forEach(function(f) {
