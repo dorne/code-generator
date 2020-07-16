@@ -15,8 +15,8 @@ var appUserPath = path.join(homedir, '/code-generator');
  * @returns {Array} 项目列表
  */
 var getProjectList = function () {
-  var rename = `/${appFolder}/project`;
-  var source = path.join(homedir, rename);
+  var project = `/${appFolder}/project`;
+  var source = path.join(homedir, project);
 
   var lstatSync = fs.lstatSync,
     readdirSync = fs.readdirSync,
@@ -159,9 +159,9 @@ var databaseList = function () {
  */
 var artTemplate = function () {
   const art = require('art-template');
-  const rename = `/${appFolder}/rename`;
-  const renamePath = path.join(homedir, rename);
-  const readDir = fs.readdirSync(renamePath);
+  const addon = `/${appFolder}/addon`;
+  const addonPath = path.join(homedir, addon);
+  const readDir = fs.readdirSync(addonPath);
 
   //装载外部自定义命名js
   readDir.forEach(function (value, key, arr) {
@@ -170,7 +170,7 @@ var artTemplate = function () {
     if (re.test(value)) {
       let fun = value.substring(0, value.indexOf('.'));
       art.defaults.imports[fun] = function (str) {
-        const clazz = require(`${renamePath}/${fun}`);
+        const clazz = require(`${addonPath}/${fun}`);
         return clazz.exce(str);
       };
     }
