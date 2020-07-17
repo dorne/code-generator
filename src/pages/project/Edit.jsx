@@ -136,6 +136,7 @@ class Edit extends React.Component {
   });
 
   taskBuild = async (record = null) => {
+    let error = false;
     const p = this;
     this.setState({
       buildVisible: true,
@@ -163,6 +164,7 @@ class Edit extends React.Component {
 
     if (!this.state.filterData || this.state.filterData.length < 1) {
       message.error(`无候选表可生成`);
+      error = true;
     }
 
     this.state.filterData.forEach(async function (table, index) {
@@ -172,7 +174,7 @@ class Edit extends React.Component {
         columns = await db.getColumns(uri, table.name);
       } catch (e) {
         message.error(`生成表[${table.name}]错误:${e.message}`);
-        return false;
+        error = true;
       }
       table.convertName = table.name;
       if (tablePrefix && table.name.startsWith(tablePrefix)) {
@@ -189,6 +191,7 @@ class Edit extends React.Component {
       } else {
         if (!p.state.taskData || p.state.taskData.length < 1) {
           message.error(`无任务可生成`);
+          error = true;
         }
         p.state.taskData.forEach(async function (record, index) {
           if(record.isRun){
@@ -202,7 +205,12 @@ class Edit extends React.Component {
       this.setState({
         buildVisible: false,
       });
-      message.success(`生成成功`);
+      if(error){
+        message.error(`生成成功`);
+      }else{
+        message.success(`生成失败`);
+      }
+      
     }, 1000);
   };
 
