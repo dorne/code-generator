@@ -10,7 +10,7 @@ import 'ace-builds/src-noconflict/mode-jsx';
 import 'ace-builds/src-min-noconflict/ext-searchbox';
 import 'ace-builds/src-min-noconflict/ext-language_tools';
 
-import { Form, Input, Button, Select, Tooltip, Drawer, message } from 'antd';
+import { Form, Input, Button, Select, Tooltip, Drawer, message, Switch } from 'antd';
 
 import * as sd from 'silly-datetime';
 
@@ -77,7 +77,7 @@ const layout = {
 const tailLayout = {
   wrapperCol: {
     span: 24,
-    style: {textAlign: 'right'}
+    style: { textAlign: 'right' },
   },
 };
 
@@ -104,7 +104,8 @@ class Edit extends React.Component {
     let formData = {
       id: new Date().getTime() + '',
       folderName: folderName,
-      saveName: "{{table.convertName}}"
+      saveName: '{{table.convertName}}',
+      isRun: true,
     };
     if (taskId) {
       const projectData = folderName ? dorne_code_gen.appUtils.getProject(folderName) : {};
@@ -231,6 +232,18 @@ class Edit extends React.Component {
             ]}
           >
             <Input />
+          </Form.Item>
+          <Form.Item
+            name="isRun"
+            label="是否启用"
+            rules={[
+              {
+                required: true,
+              },
+            ]}
+            valuePropName="checked"
+          >
+            <Switch checkedChildren="正常" unCheckedChildren="关闭" />
           </Form.Item>
           <Form.Item
             name="codeLang"
