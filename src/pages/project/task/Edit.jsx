@@ -179,14 +179,13 @@ class Edit extends React.Component {
     this.setState({
       drawerVisible: false,
     });
-    this.refs.reactAceComponent.editor.resize();
   };
 
   drawerOpen = () => {
     this.setState({
       drawerVisible: true,
     });
-    this.refs.reactAceComponent.editor.resize();
+    this.refs.reactAceComponent.editor.focus()
   };
 
   drawerAceEditorFixHeight = () => {

@@ -35,6 +35,7 @@ import {
   Drawer,
   Tooltip,
   Popconfirm,
+  Spin,
 } from 'antd';
 const { Panel } = Collapse;
 const { Option } = Select;
@@ -55,7 +56,7 @@ const layout = {
 const tailLayout = {
   wrapperCol: {
     span: 24,
-    style: {textAlign: 'right'}
+    style: { textAlign: 'right' },
   },
 };
 
@@ -134,13 +135,17 @@ class Edit extends React.Component {
   });
 
   taskBuild = async record => {
+    this.setState({
+      buildLoading: true,
+    });
+
     const tablePrefix = this.formRef.current.getFieldValue('tablePrefix');
     const database = this.formRef.current.getFieldValue('database');
     const uri = this.formRef.current.getFieldValue('uri');
 
     console.log('taskBuild');
 
-    if(!this.state.filterData || this.state.filterData < 1){
+    if (!this.state.filterData || this.state.filterData < 1) {
       message.error(`无候选表可生成`);
     }
 
@@ -148,7 +153,7 @@ class Edit extends React.Component {
       const db = dorne_code_gen.appUtils.databaseAddon(database);
       let columns = [];
       try {
-         columns = await db.getColumns(uri, table.name);
+        columns = await db.getColumns(uri, table.name);
       } catch (e) {
         message.error(`生成表[${table.name}]错误:${e.message}`);
         return false;
@@ -176,6 +181,12 @@ class Edit extends React.Component {
       const path = dorne_code_gen.path.join(record.savePath, `/${saveName}`);
       dorne_code_gen.fs.writeFileSync(path, text, 'utf-8');
     });
+
+    setTimeout(() => {
+      this.setState({
+        buildLoading: false,
+      });
+    }, 1000);
   };
 
   constructor(props) {
@@ -340,6 +351,7 @@ class Edit extends React.Component {
       ],
       folderName: null,
       projectData: null,
+      buildLoading: false,
     };
   }
 
@@ -672,314 +684,316 @@ class Edit extends React.Component {
 
     return (
       <React.Fragment>
-        <Form
-          {...layout}
-          ref={this.formRef}
-          name="control-ref"
-          onFinish={this.onFinish}
-          initialValues={formData}
-        >
-          <Collapse onChange={this.oncollapseChange} defaultActiveKey={this.state.collapseKeys}>
-            <Panel header="项目基础设置" forceRender={true} key="1">
-              <Form.Item style={{ display: 'none' }} name="createTime" label="创建时间">
-                <Input />
-              </Form.Item>
-              <Form.Item style={{ display: 'none' }} name="updateTime" label="修改时间">
-                <Input />
-              </Form.Item>
-              <Form.Item
-                name="sortCode"
-                label="排序"
-                rules={[
-                  {
-                    required: true,
-                  },
-                  ({ getFieldValue }) => ({
-                    validator(rule, value) {
-                      if (value > -1 && value < 999999999999) {
-                        return Promise.resolve();
-                      }
-                      return Promise.reject('请填写大于0的数字');
-                    },
-                  }),
-                ]}
-              >
-                <Input />
-              </Form.Item>
-              <Form.Item
-                name="name"
-                label="项目名"
-                rules={[
-                  {
-                    required: true,
-                  },
-                ]}
-              >
-                <Input />
-              </Form.Item>
-              <Form.Item
-                name={!disabled ? 'folderName' : undefined}
-                label="文件夹名"
-                rules={
-                  !disabled
-                    ? [
-                        {
-                          required: true,
-                        },
-                        {
-                          pattern: /^[A-Za-z0-9/_/-]+$/,
-                          message: '只允许英文字符和数字',
-                        },
-                      ]
-                    : undefined
-                }
-              >
-                <Input value={folderName} disabled={disabled} />
-              </Form.Item>
-            </Panel>
-            {this.state.editMode ? (
-              <Panel header="数据库配置" forceRender={true} key="2">
-                <Form.Item
-                  name="database"
-                  label="数据库类型"
-                  rules={[
-                    {
-                      required: true,
-                    },
-                  ]}
-                >
-                  <Select placeholder="请选择数据驱动" allowClear>
-                    {this.state.databaseList.map(data => {
-                      return (
-                        <Option key={data} value={data}>
-                          {data}
-                        </Option>
-                      );
-                    })}
-                  </Select>
-                </Form.Item>
-                <Form.Item
-                  name="uri"
-                  label="数据库连接uri"
-                  rules={[
-                    {
-                      required: true,
-                    },
-                  ]}
-                >
-                  <Input
-                    addonAfter={
-                      <>
-                        <Button icon={<BulbOutlined />} size="small" onClick={this.howtoURI}>
-                          如何配置
-                        </Button>
-                        <Button
-                          style={{ marginLeft: 10 }}
-                          icon={<ApiOutlined />}
-                          onClick={this.testConnect}
-                          size="small"
-                        >
-                          测试连接
-                        </Button>
-                      </>
-                    }
-                  />
-                </Form.Item>
-                <Form.Item name="tablePrefix" label="表前缀">
+        <Spin spinning={this.state.buildLoading} tip="Loading...">
+          <Form
+            {...layout}
+            ref={this.formRef}
+            name="control-ref"
+            onFinish={this.onFinish}
+            initialValues={formData}
+          >
+            <Collapse onChange={this.oncollapseChange} defaultActiveKey={this.state.collapseKeys}>
+              <Panel header="项目基础设置" forceRender={true} key="1">
+                <Form.Item style={{ display: 'none' }} name="createTime" label="创建时间">
                   <Input />
                 </Form.Item>
-              </Panel>
-            ) : null}
-            {this.state.editMode ? (
-              <Panel header="表" forceRender={true} key="3">
-                <Space style={{ marginBottom: 16 }}>
-                  <Button
-                    onClick={this.getTables}
-                    icon={<SyncOutlined />}
-                    loading={this.state.tablesReloadloading}
-                  >
-                    拉取表
-                  </Button>
-                  <Button
-                    disabled={!(this.state.tablesSelRowKeys.length > 0)}
-                    onClick={this.onAddFilterTable}
-                  >
-                    添加到候选
-                  </Button>
-                </Space>
-
-                <Table
-                  rowKey={record => {
-                    return record.name;
-                  }}
-                  rowSelection={tablesRowSelection}
-                  pagination={{
-                    showQuickJumper: true,
-                    showSizeChanger: true,
-                    defaultPageSize: 10,
-                    defaultCurrent: 1,
-                    pageSizeOptions: [10, 20, 50, 100, 200, 500, 1000],
-                    showTotal: total => {
-                      return `共 ${total} 条`;
+                <Form.Item style={{ display: 'none' }} name="updateTime" label="修改时间">
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  name="sortCode"
+                  label="排序"
+                  rules={[
+                    {
+                      required: true,
                     },
-                  }}
-                  bordered
-                  columns={this.state.tablesColumns}
-                  dataSource={this.state.tablesData}
-                />
+                    ({ getFieldValue }) => ({
+                      validator(rule, value) {
+                        if (value > -1 && value < 999999999999) {
+                          return Promise.resolve();
+                        }
+                        return Promise.reject('请填写大于0的数字');
+                      },
+                    }),
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  name="name"
+                  label="项目名"
+                  rules={[
+                    {
+                      required: true,
+                    },
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  name={!disabled ? 'folderName' : undefined}
+                  label="文件夹名"
+                  rules={
+                    !disabled
+                      ? [
+                          {
+                            required: true,
+                          },
+                          {
+                            pattern: /^[A-Za-z0-9/_/-]+$/,
+                            message: '只允许英文字符和数字',
+                          },
+                        ]
+                      : undefined
+                  }
+                >
+                  <Input value={folderName} disabled={disabled} />
+                </Form.Item>
               </Panel>
-            ) : null}
-            {this.state.editMode ? (
-              <Panel header="候选表" forceRender={true} key="4">
-                <Space style={{ marginBottom: 16 }}>
-                  <Button onClick={this.filterTableReload} icon={<ReloadOutlined />}>
-                    刷新
-                  </Button>
-                  <Popconfirm
-                    placement="bottomRight"
-                    title={`确认要删除[${this.state.filterSelRowKeys.length}个]候选表吗?`}
-                    onConfirm={this.onFilterDelSelectRow.bind(this, null)}
-                    okText="删除"
-                    cancelText="取消"
-                    disabled={!(this.state.filterSelRowKeys.length > 0)}
+              {this.state.editMode ? (
+                <Panel header="数据库配置" forceRender={true} key="2">
+                  <Form.Item
+                    name="database"
+                    label="数据库类型"
+                    rules={[
+                      {
+                        required: true,
+                      },
+                    ]}
                   >
+                    <Select placeholder="请选择数据驱动" allowClear>
+                      {this.state.databaseList.map(data => {
+                        return (
+                          <Option key={data} value={data}>
+                            {data}
+                          </Option>
+                        );
+                      })}
+                    </Select>
+                  </Form.Item>
+                  <Form.Item
+                    name="uri"
+                    label="数据库连接uri"
+                    rules={[
+                      {
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Input
+                      addonAfter={
+                        <>
+                          <Button icon={<BulbOutlined />} size="small" onClick={this.howtoURI}>
+                            如何配置
+                          </Button>
+                          <Button
+                            style={{ marginLeft: 10 }}
+                            icon={<ApiOutlined />}
+                            onClick={this.testConnect}
+                            size="small"
+                          >
+                            测试连接
+                          </Button>
+                        </>
+                      }
+                    />
+                  </Form.Item>
+                  <Form.Item name="tablePrefix" label="表前缀">
+                    <Input />
+                  </Form.Item>
+                </Panel>
+              ) : null}
+              {this.state.editMode ? (
+                <Panel header="表" forceRender={true} key="3">
+                  <Space style={{ marginBottom: 16 }}>
                     <Button
-                      type="primary"
-                      danger
-                      icon={<DeleteOutlined />}
+                      onClick={this.getTables}
+                      icon={<SyncOutlined />}
+                      loading={this.state.tablesReloadloading}
+                    >
+                      拉取表
+                    </Button>
+                    <Button
+                      disabled={!(this.state.tablesSelRowKeys.length > 0)}
+                      onClick={this.onAddFilterTable}
+                    >
+                      添加到候选
+                    </Button>
+                  </Space>
+
+                  <Table
+                    rowKey={record => {
+                      return record.name;
+                    }}
+                    rowSelection={tablesRowSelection}
+                    pagination={{
+                      showQuickJumper: true,
+                      showSizeChanger: true,
+                      defaultPageSize: 10,
+                      defaultCurrent: 1,
+                      pageSizeOptions: [10, 20, 50, 100, 200, 500, 1000],
+                      showTotal: total => {
+                        return `共 ${total} 条`;
+                      },
+                    }}
+                    bordered
+                    columns={this.state.tablesColumns}
+                    dataSource={this.state.tablesData}
+                  />
+                </Panel>
+              ) : null}
+              {this.state.editMode ? (
+                <Panel header="候选表" forceRender={true} key="4">
+                  <Space style={{ marginBottom: 16 }}>
+                    <Button onClick={this.filterTableReload} icon={<ReloadOutlined />}>
+                      刷新
+                    </Button>
+                    <Popconfirm
+                      placement="bottomRight"
+                      title={`确认要删除[${this.state.filterSelRowKeys.length}个]候选表吗?`}
+                      onConfirm={this.onFilterDelSelectRow.bind(this, null)}
+                      okText="删除"
+                      cancelText="取消"
                       disabled={!(this.state.filterSelRowKeys.length > 0)}
                     >
-                      删除
-                    </Button>
-                  </Popconfirm>
-                  <Popconfirm
-                    placement="bottomRight"
-                    title={`确认要清空候选表吗?`}
-                    onConfirm={this.onFilterClear}
-                    okText="删除"
-                    cancelText="取消"
-                  >
-                    <Button type="primary" danger icon={<RestOutlined />}>
-                      清空
-                    </Button>
-                  </Popconfirm>
-                </Space>
+                      <Button
+                        type="primary"
+                        danger
+                        icon={<DeleteOutlined />}
+                        disabled={!(this.state.filterSelRowKeys.length > 0)}
+                      >
+                        删除
+                      </Button>
+                    </Popconfirm>
+                    <Popconfirm
+                      placement="bottomRight"
+                      title={`确认要清空候选表吗?`}
+                      onConfirm={this.onFilterClear}
+                      okText="删除"
+                      cancelText="取消"
+                    >
+                      <Button type="primary" danger icon={<RestOutlined />}>
+                        清空
+                      </Button>
+                    </Popconfirm>
+                  </Space>
 
-                <Table
-                  rowKey={record => {
-                    return record.name;
-                  }}
-                  rowSelection={filterRowSelection}
-                  pagination={{
-                    showQuickJumper: true,
-                    showSizeChanger: true,
-                    defaultPageSize: 10,
-                    defaultCurrent: 1,
-                    showTotal: total => {
-                      return `共 ${total} 条`;
-                    },
-                  }}
-                  bordered
-                  columns={this.state.filterColumns}
-                  dataSource={this.state.filterData}
-                />
-              </Panel>
-            ) : null}
-            {this.state.editMode ? (
-              <Panel header="任务" forceRender={true} key="5">
-                <Space style={{ marginBottom: 16 }}>
-                  <Button
-                    type="primary"
-                    icon={<PlusOutlined />}
-                    onClick={() =>
-                      this.props.history.push(`/project/edit/${this.state.folderName}/task/add`)
-                    }
-                  >
-                    新建
-                  </Button>
-                  <Button onClick={this.taskTableReload} icon={<ReloadOutlined />}>
-                    刷新
-                  </Button>
-                  <Popconfirm
-                    placement="bottomRight"
-                    title={`确认要删除[${this.state.taskSelRowKeys.length}个]任务吗?`}
-                    onConfirm={this.onTaskDelSelectRow.bind(this, null)}
-                    okText="删除"
-                    cancelText="取消"
-                    disabled={!(this.state.taskSelRowKeys.length > 0)}
-                  >
+                  <Table
+                    rowKey={record => {
+                      return record.name;
+                    }}
+                    rowSelection={filterRowSelection}
+                    pagination={{
+                      showQuickJumper: true,
+                      showSizeChanger: true,
+                      defaultPageSize: 10,
+                      defaultCurrent: 1,
+                      showTotal: total => {
+                        return `共 ${total} 条`;
+                      },
+                    }}
+                    bordered
+                    columns={this.state.filterColumns}
+                    dataSource={this.state.filterData}
+                  />
+                </Panel>
+              ) : null}
+              {this.state.editMode ? (
+                <Panel header="任务" forceRender={true} key="5">
+                  <Space style={{ marginBottom: 16 }}>
                     <Button
                       type="primary"
-                      danger
-                      icon={<DeleteOutlined />}
+                      icon={<PlusOutlined />}
+                      onClick={() =>
+                        this.props.history.push(`/project/edit/${this.state.folderName}/task/add`)
+                      }
+                    >
+                      新建
+                    </Button>
+                    <Button onClick={this.taskTableReload} icon={<ReloadOutlined />}>
+                      刷新
+                    </Button>
+                    <Popconfirm
+                      placement="bottomRight"
+                      title={`确认要删除[${this.state.taskSelRowKeys.length}个]任务吗?`}
+                      onConfirm={this.onTaskDelSelectRow.bind(this, null)}
+                      okText="删除"
+                      cancelText="取消"
                       disabled={!(this.state.taskSelRowKeys.length > 0)}
                     >
-                      删除
-                    </Button>
-                  </Popconfirm>
-                  <Popconfirm
-                    placement="bottomRight"
-                    title={`确认要清空任务吗?`}
-                    onConfirm={this.onTaskClear}
-                    okText="删除"
-                    cancelText="取消"
-                  >
-                    <Button type="primary" danger icon={<RestOutlined />}>
-                      清空
-                    </Button>
-                  </Popconfirm>
-                </Space>
+                      <Button
+                        type="primary"
+                        danger
+                        icon={<DeleteOutlined />}
+                        disabled={!(this.state.taskSelRowKeys.length > 0)}
+                      >
+                        删除
+                      </Button>
+                    </Popconfirm>
+                    <Popconfirm
+                      placement="bottomRight"
+                      title={`确认要清空任务吗?`}
+                      onConfirm={this.onTaskClear}
+                      okText="删除"
+                      cancelText="取消"
+                    >
+                      <Button type="primary" danger icon={<RestOutlined />}>
+                        清空
+                      </Button>
+                    </Popconfirm>
+                  </Space>
 
-                <Table
-                  rowKey={record => {
-                    return record.id;
-                  }}
-                  rowSelection={taskRowSelection}
-                  pagination={{
-                    showQuickJumper: true,
-                    showSizeChanger: true,
-                    defaultPageSize: 10,
-                    defaultCurrent: 1,
-                    showTotal: total => {
-                      return `共 ${total} 条`;
-                    },
-                  }}
-                  bordered
-                  columns={this.state.taskColumns}
-                  dataSource={this.state.taskData}
-                />
-              </Panel>
-            ) : null}
-          </Collapse>
-          <Form.Item {...tailLayout}>
-            <Button style={btnStyle} type="primary" htmlType="submit">
-              {btnText}
-            </Button>
-            <Button style={btnStyle} htmlType="button" onClick={this.onBack}>
-              返回
-            </Button>
-          </Form.Item>
-        </Form>
-        <Drawer
-          afterVisibleChange={console.log('afterVisibleChange')}
-          title="字段管理"
-          placement="right"
-          closable={false}
-          width={520}
-          onClose={this.columnsDrawerClose}
-          visible={this.state.columnsDrawerVisible}
-        >
-          <Table
-            rowKey={record => {
-              return record.name;
-            }}
-            loading={this.state.columnsLoading}
-            pagination={false}
-            bordered
-            columns={this.state.columnsColumns}
-            dataSource={this.state.columnsData}
-          />
-        </Drawer>
+                  <Table
+                    rowKey={record => {
+                      return record.id;
+                    }}
+                    rowSelection={taskRowSelection}
+                    pagination={{
+                      showQuickJumper: true,
+                      showSizeChanger: true,
+                      defaultPageSize: 10,
+                      defaultCurrent: 1,
+                      showTotal: total => {
+                        return `共 ${total} 条`;
+                      },
+                    }}
+                    bordered
+                    columns={this.state.taskColumns}
+                    dataSource={this.state.taskData}
+                  />
+                </Panel>
+              ) : null}
+            </Collapse>
+            <Form.Item {...tailLayout}>
+              <Button style={btnStyle} type="primary" htmlType="submit">
+                {btnText}
+              </Button>
+              <Button style={btnStyle} htmlType="button" onClick={this.onBack}>
+                返回
+              </Button>
+            </Form.Item>
+          </Form>
+          <Drawer
+            afterVisibleChange={console.log('afterVisibleChange')}
+            title="字段管理"
+            placement="right"
+            closable={false}
+            width={520}
+            onClose={this.columnsDrawerClose}
+            visible={this.state.columnsDrawerVisible}
+          >
+            <Table
+              rowKey={record => {
+                return record.name;
+              }}
+              loading={this.state.columnsLoading}
+              pagination={false}
+              bordered
+              columns={this.state.columnsColumns}
+              dataSource={this.state.columnsData}
+            />
+          </Drawer>
+        </Spin>
       </React.Fragment>
     );
   }
