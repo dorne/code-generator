@@ -136,7 +136,6 @@ class Edit extends React.Component {
   });
 
   taskBuild = async (record = null) => {
-    let error = false;
     const p = this;
     this.setState({
       buildVisible: true,
@@ -158,23 +157,33 @@ class Edit extends React.Component {
 
       const path = dorne_code_gen.path.join(record.savePath, `/${saveName}`);
       dorne_code_gen.fs.writeFileSync(path, text, 'utf-8');
+
+      console.log('build is ok');
     };
 
     console.log('taskBuild');
 
     if (!this.state.filterData || this.state.filterData.length < 1) {
       message.error(`无候选表可生成`);
-      error = true;
+      this.setState({
+        buildVisible: false,
+      });
+      return false;
     }
 
-    this.state.filterData.forEach(async function (table, index) {
+
+    for(let index in  this.state.filterData){
+      let table = this.state.filterData[index];
       const db = dorne_code_gen.appUtils.databaseAddon(database);
       let columns = [];
       try {
         columns = await db.getColumns(uri, table.name);
       } catch (e) {
         message.error(`生成表[${table.name}]错误:${e.message}`);
-        error = true;
+        this.setState({
+          buildVisible: false,
+        });
+        return false;
       }
       table.convertName = table.name;
       if (tablePrefix && table.name.startsWith(tablePrefix)) {
@@ -191,27 +200,26 @@ class Edit extends React.Component {
       } else {
         if (!p.state.taskData || p.state.taskData.length < 1) {
           message.error(`无任务可生成`);
-          error = true;
+          this.setState({
+            buildVisible: false,
+          });
+          return false;
         }
-        p.state.taskData.forEach(async function (record, index) {
-          if(record.isRun){
-            build(record, table, columns);
+        for(let _index in p.state.taskData){
+          let _record = p.state.taskData[_index];
+          if(_record.isRun){
+            build(_record, table, columns);
           }
-        });
+        }
       }
-    });
+    };
 
     setTimeout(() => {
       this.setState({
         buildVisible: false,
-      });
-      if(error){
-        message.error(`生成成功`);
-      }else{
-        message.success(`生成失败`);
-      }
-      
-    }, 1000);
+      }); 
+      message.success(`生成成功`);
+    }, 800);
   };
 
   constructor(props) {
@@ -292,6 +300,12 @@ class Edit extends React.Component {
           render: record => {
             return record ? '启用' : '关闭';
           },
+        },
+        {
+          title: '生成路径',
+          dataIndex: 'savePath',
+          key: 'savePath',
+          ...this.getColumnSearchProps('savePath'),
         },
         {
           title: '操作',
