@@ -1,9 +1,7 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow, Menu} = require('electron');
+const { app, BrowserWindow, Menu, globalShortcut } = require('electron');
 const path = require('path');
 const isDev = require('electron-is-dev');
-
-Menu.setApplicationMenu(null)
 
 //修复 electron v9
 //Error: Loading non-context-aware native module in renderer
@@ -15,12 +13,47 @@ app.allowRendererProcessReuse = false;
 let mainWindow;
 
 function createWindow() {
+  //解决 Electron 在 mac 上复制粘贴失效
+  if (process.platform === 'darwin') {
+    const template = [
+      {
+        label: 'Application',
+        submenu: [
+          {
+            label: 'Quit',
+            accelerator: 'Command+Q',
+            click: function () {
+              app.quit();
+            },
+          },
+        ],
+      },
+      {
+        label: 'Edit',
+        submenu: [
+          { label: 'Copy', accelerator: 'CmdOrCtrl+C', selector: 'copy:' },
+          { label: 'Paste', accelerator: 'CmdOrCtrl+X', selector: 'cut:' },
+          { label: 'Paste', accelerator: 'CmdOrCtrl+V', selector: 'paste:' },
+        ],
+      },
+      {
+        label: 'Selection',
+        submenu: [
+          { label: 'Copy', accelerator: 'CmdOrCtrl+A', selector: 'selectAll:' },
+        ],
+      },
+    ];
+    Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+  } else {
+    Menu.setApplicationMenu(null);
+  }
+
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 1000,
-    minWidth: 1200,
-    minHeight: 1000,
+    width: 1000,
+    height: 800,
+    minWidth: 1000,
+    minHeight: 800,
     // autoHideMenuBar: true,
     // allowRunningInsecureContent: true,
     // experimentalCanvasFeatures: true,
@@ -29,7 +62,7 @@ function createWindow() {
     // frame: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
-      devTools: isDev ? true : false
+      devTools: isDev ? true : false,
     },
   });
 
@@ -73,3 +106,32 @@ app.on('activate', function () {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+//electron在mac电脑上复制粘贴全选失效
+app.on('browser-window-focus', () => {
+  if (!mainWindow) return;
+
+  if (process.platform === 'darwin') {
+    let contents = mainWindow.webContents;
+
+    globalShortcut.register('CommandOrControl+C', () => {
+      contents.copy();
+    });
+
+    globalShortcut.register('CommandOrControl+V', () => {
+      contents.paste();
+    });
+
+    globalShortcut.register('CommandOrControl+X', () => {
+      contents.cut();
+    });
+
+    globalShortcut.register('CommandOrControl+A', () => {
+      contents.selectAll();
+    });
+  }
+});
+
+app.on('browser-window-blur', () => {
+  globalShortcut.unregisterAll();
+});
