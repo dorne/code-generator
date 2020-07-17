@@ -37,3 +37,7 @@ body {
 .site-layout .site-layout-background {
   background: #fff;
 }
+
+.build-modal .ant-modal-footer{
+  display: none;
+}
