@@ -242,7 +242,7 @@ class Edit extends React.Component {
             ]}
             valuePropName="checked"
           >
-            <Switch checkedChildren="正常" unCheckedChildren="关闭" />
+            <Switch checkedChildren="启用" unCheckedChildren="关闭" />
           </Form.Item>
           <Form.Item
             name="codeLang"

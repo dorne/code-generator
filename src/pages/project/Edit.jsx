@@ -13,6 +13,7 @@ import {
   SettingOutlined,
   PlusOutlined,
   SendOutlined,
+  FieldTimeOutlined,
 } from '@ant-design/icons';
 
 import Highlighter from 'react-highlight-words';
@@ -134,7 +135,8 @@ class Edit extends React.Component {
       ),
   });
 
-  taskBuild = async record => {
+  taskBuild = async (record = null) => {
+    const p = this;
     this.setState({
       buildVisible: true,
     });
@@ -142,9 +144,24 @@ class Edit extends React.Component {
     const database = this.formRef.current.getFieldValue('database');
     const uri = this.formRef.current.getFieldValue('uri');
 
+    const build = (record, table, columns) => {
+      const text = dorne_code_gen.appUtils.artTemplate().render(record.code, {
+        table: table,
+        columns: columns,
+      });
+
+      const saveName = dorne_code_gen.appUtils.artTemplate().render(record.saveName, {
+        table: table,
+        columns: columns,
+      });
+
+      const path = dorne_code_gen.path.join(record.savePath, `/${saveName}`);
+      dorne_code_gen.fs.writeFileSync(path, text, 'utf-8');
+    };
+
     console.log('taskBuild');
 
-    if (!this.state.filterData || this.state.filterData < 1) {
+    if (!this.state.filterData || this.state.filterData.length < 1) {
       message.error(`无候选表可生成`);
     }
 
@@ -167,18 +184,18 @@ class Edit extends React.Component {
       console.log(columns);
       console.log(tablePrefix);
 
-      const text = dorne_code_gen.appUtils.artTemplate().render(record.code, {
-        table: table,
-        columns: columns,
-      });
-
-      const saveName = dorne_code_gen.appUtils.artTemplate().render(record.saveName, {
-        table: table,
-        columns: columns,
-      });
-
-      const path = dorne_code_gen.path.join(record.savePath, `/${saveName}`);
-      dorne_code_gen.fs.writeFileSync(path, text, 'utf-8');
+      if (record) {
+        build(record, table, columns);
+      } else {
+        if (!p.state.taskData || p.state.taskData.length < 1) {
+          message.error(`无任务可生成`);
+        }
+        p.state.taskData.forEach(async function (record, index) {
+          if(record.isRun){
+            build(record, table, columns);
+          }
+        });
+      }
     });
 
     setTimeout(() => {
@@ -258,6 +275,15 @@ class Edit extends React.Component {
           dataIndex: 'codeLang',
           key: 'codeLang',
           ...this.getColumnSearchProps('codeLang'),
+        },
+        {
+          title: '是否启用',
+          dataIndex: 'isRun',
+          key: 'isRun',
+          ...this.getColumnSearchProps('isRun'),
+          render: record => {
+            return record ? '启用' : '关闭';
+          },
         },
         {
           title: '操作',
@@ -940,6 +966,9 @@ class Edit extends React.Component {
                       清空
                     </Button>
                   </Popconfirm>
+                  <Button icon={<FieldTimeOutlined />} onClick={this.taskBuild.bind(this, null)}>
+                    批量生成
+                  </Button>
                 </Space>
 
                 <Table
@@ -1004,7 +1033,7 @@ class Edit extends React.Component {
           }}
         >
           <div style={{ textAlign: 'center' }}>
-            <Spin></Spin>
+            <Spin size="large" />
           </div>
         </Modal>
       </React.Fragment>
