@@ -470,9 +470,11 @@ class Edit extends React.Component {
   onFinish = values => {
     /*global dorne_code_gen*/
     /*eslint no-undef: "error"*/
+    const obj = dorne_code_gen.appUtils.getProject(this.state.folderName);
     if (this.state.editMode) {
-      const val = { ...values, updateTime: sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss') };
-      const res = dorne_code_gen.appUtils.saveProject(this.state.folderName, val);
+      values.updateTime = sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss');
+      const project =  {...obj, values}
+      const res = dorne_code_gen.appUtils.saveProject(this.state.folderName, project);
       if (res.code === 1) {
         message.success(`${res.msg}`);
       } else {
