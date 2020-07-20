@@ -58,19 +58,23 @@ var getProjectList = function () {
 };
 
 var getProject = function (folderName) {
-  var infoPath = path.join(appUserPath, `/project/${folderName}/info.json`);
-  var jsonStr = fs.readFileSync(infoPath, 'utf8');
-  var jsonObj = JSON.parse(jsonStr);
-  if (jsonObj.filterData === undefined) {
-    jsonObj.filterData = [];
+  try {
+    var infoPath = path.join(appUserPath, `/project/${folderName}/info.json`);
+    var jsonStr = fs.readFileSync(infoPath, 'utf8');
+    var jsonObj = JSON.parse(jsonStr);
+    if (jsonObj.filterData === undefined) {
+      jsonObj.filterData = [];
+    }
+    if (jsonObj.collapseKeys === undefined) {
+      jsonObj.collapseKeys = [];
+    }
+    if (jsonObj.taskData === undefined) {
+      jsonObj.taskData = [];
+    }
+    return jsonObj;
+  } catch (e) {
+    return null;
   }
-  if (jsonObj.collapseKeys === undefined) {
-    jsonObj.collapseKeys = [];
-  }
-  if (jsonObj.taskData === undefined) {
-    jsonObj.taskData = [];
-  }
-  return jsonObj;
 };
 
 var saveProject = function (folderName, obj) {
@@ -96,13 +100,13 @@ var initResources = function () {
         const _res = path.join(exePath, '/../Resources/app.asar/build/resources');
         // debugger 时的目录结构
         // const _res = path.join(exePath, '/../Resources/default_app.asar/octicon');
-        copydir.sync(_res, appUserPath)
+        copydir.sync(_res, appUserPath);
       }
-    }else if(process.platform === 'win32') {
+    } else if (process.platform === 'win32') {
       if (!fs.existsSync(appUserPath)) {
         fs.mkdirSync(appUserPath);
         const _res = path.join(exePath, '/resources/app.asar/build/resources');
-        copydir.sync(_res, appUserPath)
+        copydir.sync(_res, appUserPath);
       }
     }
   }
@@ -215,5 +219,5 @@ module.exports = {
   databaseAddon,
   databaseList,
   artTemplate,
-  initResources
+  initResources,
 };

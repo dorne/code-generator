@@ -587,10 +587,10 @@ class Edit extends React.Component {
   };
 
   onFinish = values => {
-    /*global dorne_code_gen*/
-    /*eslint no-undef: "error"*/
-    const obj = dorne_code_gen.appUtils.getProject(this.state.folderName);
     if (this.state.editMode) {
+      /*global dorne_code_gen*/
+      /*eslint no-undef: "error"*/
+      const obj = dorne_code_gen.appUtils.getProject(this.state.folderName);
       values.updateTime = sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss');
       const project = Object.assign({}, obj, values);
       const res = dorne_code_gen.appUtils.saveProject(this.state.folderName, project);
