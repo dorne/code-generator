@@ -136,10 +136,10 @@ class Edit extends React.Component {
       ),
   });
 
-  taskBuild = async (record = null) => {
+  taskBuild = async (task = null, table = null) => {
     this.setState({
       buildPercent: 0,
-      buildMsg: ''
+      buildMsg: '加载中'
     });
 
     const p = this;
@@ -162,21 +162,21 @@ class Edit extends React.Component {
       }
     };
 
-    const build = (record, table, columns) => {
-      const text = dorne_code_gen.appUtils.artTemplate().render(record.code, {
+    const build = (task, table, columns) => {
+      const text = dorne_code_gen.appUtils.artTemplate().render(task.code, {
         table: table,
         columns: columns,
       });
 
-      const saveName = dorne_code_gen.appUtils.artTemplate().render(record.saveName, {
+      const saveName = dorne_code_gen.appUtils.artTemplate().render(task.saveName, {
         table: table,
         columns: columns,
       });
 
-      if (!dorne_code_gen.fs.existsSync(record.savePath)) {
-        dorne_code_gen.fs.mkdirSync(record.savePath, { recursive: true });
+      if (!dorne_code_gen.fs.existsSync(task.savePath)) {
+        dorne_code_gen.fs.mkdirSync(task.savePath, { recursive: true });
       }
-      const path = dorne_code_gen.path.join(record.savePath, `/${saveName}`);
+      const path = dorne_code_gen.path.join(task.savePath, `/${saveName}`);
 
       try{
         dorne_code_gen.fs.writeFileSync(path, text, 'utf-8');
@@ -196,8 +196,10 @@ class Edit extends React.Component {
       return false;
     }
 
-    for (let index in this.state.filterData) {
-      let table = this.state.filterData[index];
+    const _filterData = table ? [table] : this.state.filterData
+
+    for (let index in _filterData) {
+      let table = _filterData[index];
       const db = dorne_code_gen.appUtils.databaseAddon(database);
       let columns = [];
       try {
@@ -219,11 +221,11 @@ class Edit extends React.Component {
       console.log(columns);
       console.log(tablePrefix);
 
-      if (record) {
-        const _build = build(record, table, columns);
+      if (task) {
+        const _build = build(task, table, columns);
         if(_build.code){
-          buildPercent(index, this.state.filterData.length)
-          this.setState({buildMsg : `[${record.name}]任务正在生成[${table.name}]表`});
+          buildPercent(index, _filterData.length)
+          this.setState({buildMsg : `[${task.name}]任务正在生成[${table.name}]表`});
         }else{
           message.error(_build.msg);
           this.setState({
@@ -240,12 +242,12 @@ class Edit extends React.Component {
           return false;
         }
         for (let _index in p.state.taskData) {
-          let _record = p.state.taskData[_index];
-          if (_record.isRun) {
-            const _build = build(_record, table, columns);
+          let _task = p.state.taskData[_index];
+          if (_task.isRun) {
+            const _build = build(_task, table, columns);
             if(_build.code){
               setTimeout(() => {
-                this.setState({buildMsg : `[${_record.name}]任务正在生成[${table.name}]表`});
+                this.setState({buildMsg : `[${_task.name}]任务正在生成[${table.name}]表`});
               }, 1000);
             }else{
               message.error(_build.msg);
@@ -256,7 +258,7 @@ class Edit extends React.Component {
             }
           }
         }
-        buildPercent(index, this.state.filterData.length)
+        buildPercent(index, _filterData.length)
       }
     }
 
@@ -266,7 +268,7 @@ class Edit extends React.Component {
         buildMsg: '完成',
       });
       message.success(`生成成功`);
-    }, 300);
+    }, 1000);
   };
 
   constructor(props) {
@@ -365,7 +367,7 @@ class Edit extends React.Component {
                   shape="circle"
                   size="small"
                   icon={<SendOutlined />}
-                  onClick={this.taskBuild.bind(this, record)}
+                  onClick={this.taskBuild.bind(this, record, null)}
                 />
               </Tooltip>
               <Tooltip title="配置">
@@ -428,7 +430,7 @@ class Edit extends React.Component {
                   shape="circle"
                   size="small"
                   icon={<SendOutlined />}
-                  onClick={this.taskBuild.bind(this, record)}
+                  onClick={this.taskBuild.bind(this, null, record)}
                 />
               </Tooltip>
               <Popconfirm
@@ -1045,7 +1047,7 @@ class Edit extends React.Component {
                       清空
                     </Button>
                   </Popconfirm>
-                  <Button icon={<FieldTimeOutlined />} onClick={this.taskBuild.bind(this, null)}>
+                  <Button icon={<FieldTimeOutlined />} onClick={this.taskBuild.bind(this, null, null)}>
                     批量生成
                   </Button>
                 </Space>
