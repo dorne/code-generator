@@ -37,6 +37,7 @@ import {
   Tooltip,
   Popconfirm,
   Spin,
+  Progress,
 } from 'antd';
 const { Panel } = Collapse;
 const { Option } = Select;
@@ -136,6 +137,10 @@ class Edit extends React.Component {
   });
 
   taskBuild = async (record = null) => {
+    this.setState({
+      buildPercent: 0,
+    });
+
     const p = this;
     this.setState({
       buildVisible: true,
@@ -143,6 +148,20 @@ class Edit extends React.Component {
     const tablePrefix = this.formRef.current.getFieldValue('tablePrefix');
     const database = this.formRef.current.getFieldValue('database');
     const uri = this.formRef.current.getFieldValue('uri');
+
+    const buildPercent = (index, len, msg) => {
+      if (index + 1 === len) {
+        this.setState({
+          buildPercent: 100,
+          buildMsg: '完成'
+        });
+      } else {
+        this.setState({
+          buildPercent: this.state.buildPercent + Math.round(100 / len),
+          buildMsg: msg
+        });
+      }
+    };
 
     const build = (record, table, columns) => {
       const text = dorne_code_gen.appUtils.artTemplate().render(record.code, {
@@ -156,9 +175,13 @@ class Edit extends React.Component {
       });
 
       const path = dorne_code_gen.path.join(record.savePath, `/${saveName}`);
-      dorne_code_gen.fs.writeFileSync(path, text, 'utf-8');
 
-      console.log('build is ok');
+      try{
+        dorne_code_gen.fs.writeFileSync(path, text, 'utf-8');
+        return { code: 1, msg: '模版生成成功' };
+      }catch (err) {
+        return { code: 0, msg: err.message };
+      }
     };
 
     console.log('taskBuild');
@@ -171,8 +194,7 @@ class Edit extends React.Component {
       return false;
     }
 
-
-    for(let index in  this.state.filterData){
+    for (let index in this.state.filterData) {
       let table = this.state.filterData[index];
       const db = dorne_code_gen.appUtils.databaseAddon(database);
       let columns = [];
@@ -196,7 +218,16 @@ class Edit extends React.Component {
       console.log(tablePrefix);
 
       if (record) {
-        build(record, table, columns);
+        const _build = build(record, table, columns);
+        if(_build.code){
+          buildPercent(index, this.state.filterData.length, `[${record.name}]任务正在生成[${table.name}]表`)
+        }else{
+          message.error(_build.msg);
+          this.setState({
+            buildVisible: false,
+          });
+          return false;
+        }
       } else {
         if (!p.state.taskData || p.state.taskData.length < 1) {
           message.error(`无任务可生成`);
@@ -205,21 +236,31 @@ class Edit extends React.Component {
           });
           return false;
         }
-        for(let _index in p.state.taskData){
+        for (let _index in p.state.taskData) {
           let _record = p.state.taskData[_index];
-          if(_record.isRun){
-            build(_record, table, columns);
+          if (_record.isRun) {
+            const _build = build(_record, table, columns);
+            if(_build.code){
+              buildPercent(index, this.state.filterData.length, `[${_record.name}]任务正在生成[${table.name}]表`)
+            }else{
+              message.error(_build.msg);
+              this.setState({
+                buildVisible: false,
+              });
+              return false;
+            }
           }
         }
       }
-    };
+    }
 
     setTimeout(() => {
       this.setState({
         buildVisible: false,
-      }); 
+        buildMsg: '完成',
+      });
       message.success(`生成成功`);
-    }, 800);
+    }, 300);
   };
 
   constructor(props) {
@@ -400,6 +441,8 @@ class Edit extends React.Component {
       folderName: null,
       projectData: null,
       buildVisible: false,
+      buildPercent: 100,
+      buildMsg: ''
     };
   }
 
@@ -1055,7 +1098,9 @@ class Edit extends React.Component {
           }}
         >
           <div style={{ textAlign: 'center' }}>
-          <Spin tip="生成中..." />
+            <Spin></Spin>
+            <p style={{marginTop:'15px'}}>{this.state.buildMsg}</p>
+            <Progress percent={this.state.buildPercent} size="small" />
           </div>
         </Modal>
       </React.Fragment>
