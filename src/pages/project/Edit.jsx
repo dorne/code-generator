@@ -149,16 +149,14 @@ class Edit extends React.Component {
     const database = this.formRef.current.getFieldValue('database');
     const uri = this.formRef.current.getFieldValue('uri');
 
-    const buildPercent = (index, len, msg) => {
+    const buildPercent = (index, len) => {
       if (index + 1 === len) {
         this.setState({
-          buildPercent: 100,
-          buildMsg: '完成'
+          buildPercent: 100
         });
       } else {
         this.setState({
-          buildPercent: this.state.buildPercent + Math.round(100 / len),
-          buildMsg: msg
+          buildPercent: this.state.buildPercent + Math.round(100 / len)
         });
       }
     };
@@ -174,6 +172,7 @@ class Edit extends React.Component {
         columns: columns,
       });
 
+      dorne_code_gen.fs.mkdirSync(record.savePath, { recursive: true });
       const path = dorne_code_gen.path.join(record.savePath, `/${saveName}`);
 
       try{
@@ -220,7 +219,8 @@ class Edit extends React.Component {
       if (record) {
         const _build = build(record, table, columns);
         if(_build.code){
-          buildPercent(index, this.state.filterData.length, `[${record.name}]任务正在生成[${table.name}]表`)
+          buildPercent(index, this.state.filterData.length)
+          this.setState({buildMsg : `[${record.name}]任务正在生成[${table.name}]表`});
         }else{
           message.error(_build.msg);
           this.setState({
@@ -239,9 +239,13 @@ class Edit extends React.Component {
         for (let _index in p.state.taskData) {
           let _record = p.state.taskData[_index];
           if (_record.isRun) {
+            console.log(`-------------===============----------------------`)
+            console.log(_record.name)
             const _build = build(_record, table, columns);
             if(_build.code){
-              buildPercent(index, this.state.filterData.length, `[${_record.name}]任务正在生成[${table.name}]表`)
+              setTimeout(() => {
+                this.setState({buildMsg : `[${_record.name}]任务正在生成[${table.name}]表`});
+              }, 10);
             }else{
               message.error(_build.msg);
               this.setState({
@@ -251,6 +255,7 @@ class Edit extends React.Component {
             }
           }
         }
+        buildPercent(index, this.state.filterData.length)
       }
     }
 
