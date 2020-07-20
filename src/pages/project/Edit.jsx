@@ -139,7 +139,7 @@ class Edit extends React.Component {
   taskBuild = async (task = null, table = null) => {
     this.setState({
       buildPercent: 0,
-      buildMsg: '加载中'
+      buildMsg: '加载中',
     });
 
     const p = this;
@@ -153,35 +153,35 @@ class Edit extends React.Component {
     const buildPercent = (index, len) => {
       if (index + 1 === len) {
         this.setState({
-          buildPercent: 100
+          buildPercent: 100,
         });
       } else {
         this.setState({
-          buildPercent: this.state.buildPercent + Math.round(100 / len)
+          buildPercent: this.state.buildPercent + Math.round(100 / len),
         });
       }
     };
 
     const build = (task, table, columns) => {
-      const text = dorne_code_gen.appUtils.artTemplate().render(task.code, {
-        table: table,
-        columns: columns,
-      });
+      try {
+        const text = dorne_code_gen.appUtils.artTemplate().render(task.code, {
+          table: table,
+          columns: columns,
+        });
 
-      const saveName = dorne_code_gen.appUtils.artTemplate().render(task.saveName, {
-        table: table,
-        columns: columns,
-      });
+        const saveName = dorne_code_gen.appUtils.artTemplate().render(task.saveName, {
+          table: table,
+          columns: columns,
+        });
 
-      if (!dorne_code_gen.fs.existsSync(task.savePath)) {
-        dorne_code_gen.fs.mkdirSync(task.savePath, { recursive: true });
-      }
-      const path = dorne_code_gen.path.join(task.savePath, `/${saveName}`);
+        if (!dorne_code_gen.fs.existsSync(task.savePath)) {
+          dorne_code_gen.fs.mkdirSync(task.savePath, { recursive: true });
+        }
+        const path = dorne_code_gen.path.join(task.savePath, `/${saveName}`);
 
-      try{
         dorne_code_gen.fs.writeFileSync(path, text, 'utf-8');
         return { code: 1, msg: '模版生成成功' };
-      }catch (err) {
+      } catch (err) {
         return { code: 0, msg: err.message };
       }
     };
@@ -196,7 +196,7 @@ class Edit extends React.Component {
       return false;
     }
 
-    const _filterData = table ? [table] : this.state.filterData
+    const _filterData = table ? [table] : this.state.filterData;
 
     for (let index in _filterData) {
       let table = _filterData[index];
@@ -223,10 +223,10 @@ class Edit extends React.Component {
 
       if (task) {
         const _build = build(task, table, columns);
-        if(_build.code){
-          buildPercent(index, _filterData.length)
-          this.setState({buildMsg : `[${task.name}]任务正在生成[${table.name}]表`});
-        }else{
+        if (_build.code) {
+          buildPercent(index, _filterData.length);
+          this.setState({ buildMsg: `[${task.name}]任务正在生成[${table.name}]表` });
+        } else {
           message.error(_build.msg);
           this.setState({
             buildVisible: false,
@@ -245,11 +245,11 @@ class Edit extends React.Component {
           let _task = p.state.taskData[_index];
           if (_task.isRun) {
             const _build = build(_task, table, columns);
-            if(_build.code){
+            if (_build.code) {
               setTimeout(() => {
-                this.setState({buildMsg : `[${_task.name}]任务正在生成[${table.name}]表`});
+                this.setState({ buildMsg: `[${_task.name}]任务正在生成[${table.name}]表` });
               }, 1000);
-            }else{
+            } else {
               message.error(_build.msg);
               this.setState({
                 buildVisible: false,
@@ -258,7 +258,7 @@ class Edit extends React.Component {
             }
           }
         }
-        buildPercent(index, _filterData.length)
+        buildPercent(index, _filterData.length);
       }
     }
 
@@ -458,7 +458,7 @@ class Edit extends React.Component {
       projectData: null,
       buildVisible: false,
       buildPercent: 100,
-      buildMsg: ''
+      buildMsg: '',
     };
   }
 
@@ -1047,7 +1047,10 @@ class Edit extends React.Component {
                       清空
                     </Button>
                   </Popconfirm>
-                  <Button icon={<FieldTimeOutlined />} onClick={this.taskBuild.bind(this, null, null)}>
+                  <Button
+                    icon={<FieldTimeOutlined />}
+                    onClick={this.taskBuild.bind(this, null, null)}
+                  >
                     批量生成
                   </Button>
                 </Space>
@@ -1115,7 +1118,7 @@ class Edit extends React.Component {
         >
           <div style={{ textAlign: 'center' }}>
             <Spin></Spin>
-            <p style={{marginTop:'15px'}}>{this.state.buildMsg}</p>
+            <p style={{ marginTop: '15px' }}>{this.state.buildMsg}</p>
             <Progress percent={this.state.buildPercent} size="small" />
           </div>
         </Modal>
