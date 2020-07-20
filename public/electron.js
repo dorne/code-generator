@@ -13,7 +13,7 @@ app.allowRendererProcessReuse = false;
 let mainWindow;
 
 function createWindow() {
-  //解决 Electron 在 mac 上复制粘贴失效
+  // 解决 Electron 在 mac 上复制粘贴失效
   if (process.platform === 'darwin') {
     const template = [
       {
@@ -63,6 +63,7 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       devTools: isDev ? true : false,
+      enableRemoteModule: true
     },
   });
 

@@ -1,7 +1,9 @@
 /* eslint-disable strict */
 'use strict';
 
+var { remote } = require('electron');
 var path = require('path');
+var copydir = require('copy-dir');
 var homedir = require('os').homedir();
 var fs = require('fs');
 var fse = require('fs-extra');
@@ -36,7 +38,7 @@ var getProjectList = function () {
   for (var i = 0; i < dirs.length; i++) {
     var value = dirs[i];
     var folderName = value.substring(value.lastIndexOf(path.sep) + 1, value.length);
-    console.log('目录', folderName)
+    console.log('目录', folderName);
     //不展示template项目文件,template为创建项目的模版目录
     if (folderName === 'template') continue;
     var infoPath = join(value, '/info.json');
@@ -59,25 +61,50 @@ var getProject = function (folderName) {
   var infoPath = path.join(appUserPath, `/project/${folderName}/info.json`);
   var jsonStr = fs.readFileSync(infoPath, 'utf8');
   var jsonObj = JSON.parse(jsonStr);
-  if(jsonObj.filterData === undefined){
-    jsonObj.filterData = []
+  if (jsonObj.filterData === undefined) {
+    jsonObj.filterData = [];
   }
-  if(jsonObj.collapseKeys === undefined){
-    jsonObj.collapseKeys = []
+  if (jsonObj.collapseKeys === undefined) {
+    jsonObj.collapseKeys = [];
   }
-  if(jsonObj.taskData === undefined){
-    jsonObj.taskData = []
+  if (jsonObj.taskData === undefined) {
+    jsonObj.taskData = [];
   }
-  return jsonObj
+  return jsonObj;
 };
 
 var saveProject = function (folderName, obj) {
   var infoPath = path.join(appUserPath, `/project/${folderName}/info.json`);
-  try{
+  try {
     fs.writeFileSync(infoPath, JSON.stringify(obj, undefined, 4), 'utf-8');
     return { code: 1, msg: '保存成功' };
-  }catch (err) {
+  } catch (err) {
     return { code: 0, msg: err.msg };
+  }
+};
+
+var initResources = function () {
+  const isDev = require('electron-is-dev');
+
+  if (!isDev) {
+    var exePath = path.dirname(remote.app.getPath('exe'));
+    console.log(exePath);
+    console.log(appUserPath);
+    if (process.platform === 'darwin') {
+      if (!fs.existsSync(appUserPath)) {
+        fs.mkdirSync(appUserPath);
+        const _res = path.join(exePath, '/../Resources/app.asar/build/resources');
+        // const _res = path.join(exePath, '/../Resources/default_app.asar/octicon');
+        console.log(_res);
+        if(fs.existsSync(_res)){
+          console.log('ok-------------------------');
+        }
+        copydir.sync(_res, appUserPath)
+        console.log('ok--------copydir----------copydir-------');
+      }
+    }else if(process.platform === 'win32') {
+
+    }
   }
 };
 
@@ -141,13 +168,14 @@ var databaseAddon = function (dbType) {
 
 var databaseList = function () {
   let arrFiles = [];
-  fs.readdirSync(`${appUserPath}/database`).filter(function(f) {
-    return f.endsWith('.js');
-  })
-  .forEach(function(f) {
-    arrFiles.push(f.substring(0,f.indexOf(".")))
-  });
- 
+  fs.readdirSync(`${appUserPath}/database`)
+    .filter(function (f) {
+      return f.endsWith('.js');
+    })
+    .forEach(function (f) {
+      arrFiles.push(f.substring(0, f.indexOf('.')));
+    });
+
   console.log(arrFiles);
   return arrFiles;
 };
@@ -187,4 +215,5 @@ module.exports = {
   databaseAddon,
   databaseList,
   artTemplate,
+  initResources
 };

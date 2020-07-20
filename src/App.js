@@ -19,6 +19,13 @@ class App extends React.Component {
     this.props.globalActions.routesActions.add(mainRoutes);
   }
 
+  componentWillMount() {
+    console.log('***************************************************************');
+    /*global dorne_code_gen*/
+    /*eslint no-undef: "error"*/
+      dorne_code_gen.appUtils.initResources();
+  }
+
   componentDidMount() {
     console.log('app componentDidMount');
     console.log(this.props);
