@@ -94,16 +94,16 @@ var initResources = function () {
       if (!fs.existsSync(appUserPath)) {
         fs.mkdirSync(appUserPath);
         const _res = path.join(exePath, '/../Resources/app.asar/build/resources');
+        // debugger 时的目录结构
         // const _res = path.join(exePath, '/../Resources/default_app.asar/octicon');
-        console.log(_res);
-        if(fs.existsSync(_res)){
-          console.log('ok-------------------------');
-        }
         copydir.sync(_res, appUserPath)
-        console.log('ok--------copydir----------copydir-------');
       }
     }else if(process.platform === 'win32') {
-
+      if (!fs.existsSync(appUserPath)) {
+        fs.mkdirSync(appUserPath);
+        const _res = path.join(exePath, '/resources/app.asar/build/resources');
+        copydir.sync(_res, appUserPath)
+      }
     }
   }
 };
