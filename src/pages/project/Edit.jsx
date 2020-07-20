@@ -139,6 +139,7 @@ class Edit extends React.Component {
   taskBuild = async (record = null) => {
     this.setState({
       buildPercent: 0,
+      buildMsg: ''
     });
 
     const p = this;
@@ -172,7 +173,9 @@ class Edit extends React.Component {
         columns: columns,
       });
 
-      dorne_code_gen.fs.mkdirSync(record.savePath, { recursive: true });
+      if (!dorne_code_gen.fs.existsSync(record.savePath)) {
+        dorne_code_gen.fs.mkdirSync(record.savePath, { recursive: true });
+      }
       const path = dorne_code_gen.path.join(record.savePath, `/${saveName}`);
 
       try{
@@ -239,13 +242,11 @@ class Edit extends React.Component {
         for (let _index in p.state.taskData) {
           let _record = p.state.taskData[_index];
           if (_record.isRun) {
-            console.log(`-------------===============----------------------`)
-            console.log(_record.name)
             const _build = build(_record, table, columns);
             if(_build.code){
               setTimeout(() => {
                 this.setState({buildMsg : `[${_record.name}]任务正在生成[${table.name}]表`});
-              }, 10);
+              }, 1000);
             }else{
               message.error(_build.msg);
               this.setState({
@@ -422,6 +423,14 @@ class Edit extends React.Component {
           key: 'operation',
           render: record => (
             <Space size="middle">
+              <Tooltip title="生成">
+                <Button
+                  shape="circle"
+                  size="small"
+                  icon={<SendOutlined />}
+                  onClick={this.taskBuild.bind(this, record)}
+                />
+              </Tooltip>
               <Popconfirm
                 placement="bottomRight"
                 title={`确定要删除[${record.name}]候选表吗?`}
