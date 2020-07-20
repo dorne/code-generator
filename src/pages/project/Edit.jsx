@@ -1055,7 +1055,7 @@ class Edit extends React.Component {
           }}
         >
           <div style={{ textAlign: 'center' }}>
-            <Spin size="large" />
+          <Spin tip="生成中..." />
           </div>
         </Modal>
       </React.Fragment>

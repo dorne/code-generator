@@ -41,3 +41,13 @@ body {
 .build-modal .ant-modal-footer{
   display: none;
 }
+
+.build-modal .ant-modal-header{
+  display: none;
+}
+
+/* .build-modal .ant-modal-content{
+  background-color: rgba(0, 0, 0, 0);
+  -webkit-box-shadow:none;
+  box-shadow: none;;
+} */
