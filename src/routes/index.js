@@ -77,7 +77,7 @@ export const mainRoutes = [
       pid: 0,
       isMenu: true,
       parent: 0,
-      title: '设置',
+      title: '系统设置',
       path: '/settings',
       match: '/settings',
     },
@@ -101,7 +101,7 @@ export const mainRoutes = [
     routeMateData: {
       id: 4,
       pid: 0,
-      isMenu: true,
+      isMenu: false,
       parent: 0,
       title: '样例',
       path: '/demo',

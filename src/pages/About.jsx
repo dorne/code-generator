@@ -7,6 +7,13 @@ class About extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      html: `<p>
+        <ul>
+          <li>1</li>
+          <li>2</li>
+          <li>3</li>
+        </ul>
+      </p>`
     };
   }
 
@@ -21,9 +28,9 @@ class About extends React.Component {
     console.log(this.props);
     console.log('About end render');
     return (
-      <div>
-        版本:{conf.version}
-      </div>
+      <div dangerouslySetInnerHTML={{
+        __html: this.state.html
+      }}/>
     );
   }
 }
