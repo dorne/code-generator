@@ -182,6 +182,7 @@ class Edit extends React.Component {
         dorne_code_gen.fs.writeFileSync(path, text, 'utf-8');
         return { code: 1, msg: '模版生成成功' };
       } catch (err) {
+        console.error(err)
         return { code: 0, msg: err.message };
       }
     };
