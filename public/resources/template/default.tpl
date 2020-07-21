@@ -22,4 +22,4 @@
 {{each columns}}
 当前下标{{$index}}
 '{{$value.name | underline2hump | first2upper}}'{{if $index+1<$columnsLen}},{{else}}{{/if}}
-{{/each}}  
+{{/each}}

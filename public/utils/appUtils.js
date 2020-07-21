@@ -210,6 +210,13 @@ var artTemplate = function () {
   return art;
 };
 
+
+var defaultTemplate = function(){
+  var project = `/${appFolder}/template/default.tpl`;
+  var source = path.join(homedir, project);
+  return fs.readFileSync(source, 'utf8');
+}
+
 module.exports = {
   getProjectList,
   getProject,
@@ -220,4 +227,5 @@ module.exports = {
   databaseList,
   artTemplate,
   initResources,
+  defaultTemplate,
 };

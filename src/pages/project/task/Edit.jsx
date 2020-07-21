@@ -106,6 +106,7 @@ class Edit extends React.Component {
       folderName: folderName,
       saveName: '{{table.convertName}}',
       isRun: true,
+      code: dorne_code_gen.appUtils.defaultTemplate()
     };
     if (taskId) {
       const projectData = folderName ? dorne_code_gen.appUtils.getProject(folderName) : {};
