@@ -11,9 +11,9 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-const path = require('path');
-const homedir = require('os').homedir();
+
 const fs = require('fs');
+const { dialog } = require('electron').remote;
 
 // 暴露electron
 global.dorne_code_gen = {
@@ -28,4 +28,5 @@ global.dorne_code_gen = {
   Sequelize: require('sequelize'),
   rmdir: require('rmdir'),
   appUtils: require('./utils/appUtils'),
+  dialog: dialog
 };

@@ -16,7 +16,7 @@ import * as sd from 'silly-datetime';
 
 import * as collect from 'collect.js';
 
-import { FullscreenOutlined } from '@ant-design/icons';
+import { FullscreenOutlined, FolderOpenOutlined } from '@ant-design/icons';
 
 const languages = [
   'javascript',
@@ -108,7 +108,7 @@ class Edit extends React.Component {
       saveName: '{{table.convertName}}',
       isRun: true,
       code: dorne_code_gen.appUtils.defaultTemplate(),
-      tabSize: 2
+      tabSize: 2,
     };
     if (taskId) {
       const projectData = folderName ? dorne_code_gen.appUtils.getProject(folderName) : {};
@@ -193,7 +193,7 @@ class Edit extends React.Component {
     this.setState({
       drawerVisible: true,
     });
-    this.refs.reactAceComponent.editor.focus()
+    this.refs.reactAceComponent.editor.focus();
   };
 
   drawerAceEditorFixHeight = () => {
@@ -210,6 +210,22 @@ class Edit extends React.Component {
     this.formRef.current.setFieldsValue({
       code: v,
     });
+  };
+
+  browserFolder = () => {
+    dorne_code_gen.dialog
+      .showOpenDialog({
+        properties: ['openDirectory'],
+      })
+      .then(data => {
+        if (data.filePaths.length > 0)
+          this.formRef.current.setFieldsValue({
+            savePath: data.filePaths[0],
+          });
+      })
+      .catch(err => {
+        console.log(err);
+      });
   };
 
   render() {
@@ -299,7 +315,17 @@ class Edit extends React.Component {
               },
             ]}
           >
-            <Input />
+            <Input
+              addonAfter={
+                <>
+                  <Button
+                    icon={<FolderOpenOutlined />}
+                    size="small"
+                    onClick={this.browserFolder}
+                  ></Button>
+                </>
+              }
+            />
           </Form.Item>
           <Form.Item
             name="saveName"
@@ -341,8 +367,8 @@ class Edit extends React.Component {
               showGutter={true}
               highlightActiveLine={true}
               style={{ width: '100%', height: 600 }}
-              tabSize= {this.state.tabSize}
-              useSoftTabs= {true}
+              tabSize={parseInt(this.state.tabSize)}
+              useSoftTabs={true}
               setOptions={{
                 enableBasicAutocompletion: true,
                 enableLiveAutocompletion: true,
@@ -386,8 +412,8 @@ class Edit extends React.Component {
             highlightActiveLine={true}
             style={{ width: '100%', height: '100%' }}
             ref="reactAceComponent"
-            tabSize= {this.state.tabSize}
-            useSoftTabs= {true}
+            tabSize={parseInt(this.state.tabSize)}
+            useSoftTabs={true}
             setOptions={{
               enableBasicAutocompletion: true,
               enableLiveAutocompletion: true,
