@@ -91,6 +91,7 @@ class Edit extends React.Component {
       codeLang: 'java',
       drawerVisible: false,
       code: '',
+      tabSize: '2',
     };
   }
 
@@ -106,7 +107,8 @@ class Edit extends React.Component {
       folderName: folderName,
       saveName: '{{table.convertName}}',
       isRun: true,
-      code: dorne_code_gen.appUtils.defaultTemplate()
+      code: dorne_code_gen.appUtils.defaultTemplate(),
+      tabSize: 2
     };
     if (taskId) {
       const projectData = folderName ? dorne_code_gen.appUtils.getProject(folderName) : {};
@@ -116,6 +118,7 @@ class Edit extends React.Component {
       formData = taskDataCollect.where('id', taskId).first();
       formData = formData ? formData : {};
       this.setState({ code: formData.code ? formData.code : '' });
+      this.setState({ tabSize: formData.tabSize ? formData.tabSize : '' });
     }
 
     this.setState({
@@ -169,6 +172,10 @@ class Edit extends React.Component {
   onCodeLangChange = val => {
     console.log(val);
     this.setState({ codeLang: val });
+  };
+
+  tabSizeChange = e => {
+    this.setState({ tabSize: e.target.value });
   };
 
   onBack = () => {
@@ -246,6 +253,25 @@ class Edit extends React.Component {
             <Switch checkedChildren="启用" unCheckedChildren="关闭" />
           </Form.Item>
           <Form.Item
+            name="tabSize"
+            label="tab字符长度"
+            rules={[
+              {
+                required: true,
+              },
+              ({ getFieldValue }) => ({
+                validator(rule, value) {
+                  if (value > -1 && value < 999999999999) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject('请填写大于0的数字');
+                },
+              }),
+            ]}
+          >
+            <Input onChange={this.tabSizeChange} />
+          </Form.Item>
+          <Form.Item
             name="codeLang"
             label="代码格式"
             rules={[
@@ -315,12 +341,13 @@ class Edit extends React.Component {
               showGutter={true}
               highlightActiveLine={true}
               style={{ width: '100%', height: 600 }}
+              tabSize= {this.state.tabSize}
+              useSoftTabs= {true}
               setOptions={{
                 enableBasicAutocompletion: true,
                 enableLiveAutocompletion: true,
                 enableSnippets: true,
                 showLineNumbers: true,
-                tabSize: 2,
               }}
             />
           </Form.Item>
@@ -359,12 +386,13 @@ class Edit extends React.Component {
             highlightActiveLine={true}
             style={{ width: '100%', height: '100%' }}
             ref="reactAceComponent"
+            tabSize= {this.state.tabSize}
+            useSoftTabs= {true}
             setOptions={{
               enableBasicAutocompletion: true,
               enableLiveAutocompletion: true,
               enableSnippets: true,
               showLineNumbers: true,
-              tabSize: 2,
             }}
           />
         </Drawer>
