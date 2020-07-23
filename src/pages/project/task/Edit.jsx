@@ -18,6 +18,8 @@ import * as collect from 'collect.js';
 
 import { FullscreenOutlined, FolderOpenOutlined } from '@ant-design/icons';
 
+import uuid from 'node-uuid';
+
 const languages = [
   'javascript',
   'java',
@@ -103,7 +105,7 @@ class Edit extends React.Component {
     this.setState({ editMode: taskId ? true : false });
 
     let formData = {
-      id: new Date().getTime() + '',
+      id: uuid.v1(),
       folderName: folderName,
       saveName: '{{table.convertName}}',
       isRun: true,
