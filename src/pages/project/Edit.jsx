@@ -164,10 +164,8 @@ class Edit extends React.Component {
 
     const build = (task, table, columns) => {
       try {
-        const text = dorne_code_gen.appUtils.artTemplate().render(task.code, {
-          table: table,
-          columns: columns,
-        });
+
+        let _retainCode = {};
 
         const saveName = dorne_code_gen.appUtils.artTemplate().render(task.saveName, {
           table: table,
@@ -178,6 +176,29 @@ class Edit extends React.Component {
           dorne_code_gen.fs.mkdirSync(task.savePath, { recursive: true });
         }
         const path = dorne_code_gen.path.join(task.savePath, `/${saveName}`);
+
+        if (dorne_code_gen.fs.existsSync(path)) {
+          //找到已经生成过的文件
+          const retainCode = task.retainCode ? task.retainCode : [];
+          retainCode.forEach(function(element) {
+            let b = element.begin;
+            let e = element.end;
+
+            var matchReg = new RegExp( `(?<=${b})[\\s\\S]*?(?=${e})`, "g");
+
+            let oldCode = dorne_code_gen.appUtils.readFile(path);
+            const _txt = oldCode.match(matchReg);
+            //获取要保留的代码
+
+            _retainCode[element.var] = (_txt && _txt.length > 0 ? _txt[0] : '').replace(/(^\s*)/g, "").replace(/(\s*$)/g, "");
+          });
+        }
+
+        const text = dorne_code_gen.appUtils.artTemplate().render(task.code, {
+          table: table,
+          columns: columns,
+          retainCode: _retainCode
+        });
 
         dorne_code_gen.fs.writeFileSync(path, text, 'utf-8');
         return { code: 1, msg: '模版生成成功' };

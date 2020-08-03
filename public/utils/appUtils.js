@@ -217,6 +217,10 @@ var defaultTemplate = function(){
   return fs.readFileSync(source, 'utf8');
 }
 
+var readFile = function(source){
+  return fs.readFileSync(source, 'utf8');
+}
+
 module.exports = {
   getProjectList,
   getProject,
@@ -228,4 +232,5 @@ module.exports = {
   artTemplate,
   initResources,
   defaultTemplate,
+  readFile
 };

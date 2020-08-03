@@ -10,13 +10,30 @@ import 'ace-builds/src-noconflict/mode-jsx';
 import 'ace-builds/src-min-noconflict/ext-searchbox';
 import 'ace-builds/src-min-noconflict/ext-language_tools';
 
-import { Row, Col, Form, Input, Button, Select, Tooltip, Drawer, message, Switch } from 'antd';
+import {
+  Row,
+  Col,
+  Form,
+  Input,
+  Button,
+  Select,
+  Tooltip,
+  Drawer,
+  message,
+  Switch,
+  Space,
+} from 'antd';
 
 import * as sd from 'silly-datetime';
 
 import * as collect from 'collect.js';
 
-import { FullscreenOutlined, FolderOpenOutlined } from '@ant-design/icons';
+import {
+  FullscreenOutlined,
+  FolderOpenOutlined,
+  MinusCircleOutlined,
+  PlusOutlined,
+} from '@ant-design/icons';
 
 import uuid from 'node-uuid';
 
@@ -192,7 +209,7 @@ class Edit extends React.Component {
     this.setState({
       drawerVisible: false,
       columnsCache: null,
-      projectDataCache: null
+      projectDataCache: null,
     });
   };
 
@@ -217,8 +234,8 @@ class Edit extends React.Component {
 
   onDrawerAceEditorChange = async v => {
     this.setState({
-      code: v
-    })
+      code: v,
+    });
     this.formRef.current.setFieldsValue({
       code: v,
     });
@@ -226,7 +243,7 @@ class Edit extends React.Component {
     const folderName = this.props.match.params.folderName;
 
     let projectData = this.state.projectDataCache;
-    if(!this.state.projectDataCache){
+    if (!this.state.projectDataCache) {
       projectData = folderName ? dorne_code_gen.appUtils.getProject(folderName) : {};
     }
 
@@ -237,8 +254,8 @@ class Edit extends React.Component {
 
     if (!filterData || filterData.length < 1) {
       this.setState({
-        codePreview: '请配置候选表'
-      })
+        codePreview: '请配置候选表',
+      });
     } else {
       let table = filterData[0];
       table.convertName = table.name;
@@ -247,23 +264,49 @@ class Edit extends React.Component {
       }
 
       let columns = [];
+      let _retainCode = {};
       try {
         columns = this.state.columnsCache;
-        if(!this.state.columnsCache){
+        if (!this.state.columnsCache) {
           columns = await db.getColumns(projectData.uri, table.name);
         }
-        
-        const text = dorne_code_gen.appUtils.artTemplate().render(v, {
+
+        const saveName = dorne_code_gen.appUtils.artTemplate().render(this.formRef.current.getFieldValue('saveName'), {
           table: table,
           columns: columns,
         });
-  
+        const path = dorne_code_gen.path.join(this.formRef.current.getFieldValue('savePath'), `/${saveName}`);
+        if (dorne_code_gen.fs.existsSync(path)) {
+          //找到已经生成过的文件
+          const retainCode = this.formRef.current.getFieldValue('retainCode');
+          retainCode.forEach(function(element) {
+            let b = element.begin;
+            let e = element.end;
+
+            var matchReg = new RegExp( `(?<=${b})[\\s\\S]*?(?=${e})`, "g");
+
+            let oldCode = dorne_code_gen.appUtils.readFile(path);
+            const _txt = oldCode.match(matchReg);
+            //获取要保留的代码
+
+            _retainCode[element.var] = (_txt && _txt.length > 0 ? _txt[0] : '').replace(/(^\s*)/g, "").replace(/(\s*$)/g, "");
+          });
+        }
+
+        const text = dorne_code_gen.appUtils.artTemplate().render(v, {
+          table: table,
+          columns: columns,
+          retainCode: _retainCode
+        });
+
         this.setState({
           codePreview: text,
           columnsCache: columns,
-          projectDataCache: projectData
-        })
-      } catch (e) {}
+          projectDataCache: projectData,
+        });
+      } catch (e) {
+        console.log(e.message);
+      }
     }
   };
 
@@ -361,6 +404,79 @@ class Edit extends React.Component {
               })}
             </Select>
           </Form.Item>
+
+          <Form.Item
+            label="代码保护"
+          >
+            <Form.List name="retainCode">
+              {(fields, { add, remove }) => {
+                return (
+                  <div>
+                    {fields.map(field => (
+                      <Space
+                        key={field.key}
+                        style={{ display: 'flex', marginBottom: 0}}
+                        align="start"
+                      >
+                        <Form.Item
+                          {...field}
+                          name={[field.name, 'begin']}
+                          fieldKey={[field.fieldKey, 'begin']}
+                          rules={[{ required: true, message: 'Missing begin' }]}
+                        >
+                          <Input placeholder="begin code" />
+                        </Form.Item>
+                        <Form.Item
+                          {...field}
+                          name={[field.name, 'end']}
+                          fieldKey={[field.fieldKey, 'end']}
+                          rules={[{ required: true, message: 'Missing end' }]}
+                        >
+                          <Input placeholder="end code" />
+                        </Form.Item>
+                        <Form.Item
+                          {...field}
+                          name={[field.name, 'var']}
+                          fieldKey={[field.fieldKey, 'var']}
+                          rules={[{ required: true, message: 'Missing var' }]}
+                        >
+                          <Input placeholder="var code" />
+                        </Form.Item>
+                        <Form.Item
+                          {...field}
+                          name={[field.name, 'memo']}
+                          fieldKey={[field.fieldKey, 'memo']}
+                          rules={[{ required: true, message: 'Missing memo' }]}
+                        >
+                          <Input placeholder="memo text" />
+                        </Form.Item>
+
+                        <MinusCircleOutlined
+                          style={{marginTop:10}}
+                          onClick={() => {
+                            remove(field.name);
+                          }}
+                        />
+                      </Space>
+                    ))}
+
+                    <Form.Item style={{ marginBottom: 0 }}>
+                      <Button
+                        type="dashed"
+                        onClick={() => {
+                          add();
+                        }}
+                        block
+                      >
+                        <PlusOutlined /> Add field
+                      </Button>
+                    </Form.Item>
+                  </div>
+                );
+              }}
+            </Form.List>
+          </Form.Item>
+
           <Form.Item
             name="savePath"
             label="模版生成路径"
