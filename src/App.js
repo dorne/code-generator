@@ -9,12 +9,11 @@ import { NavLink, Route, Switch as RouterSwitch, Redirect, Link } from 'react-ro
 import { baseComponent } from './components/hof/base';
 import { mainRoutes } from './routes';
 
-import SettingsWidget from './pages/SettingsWidget'
+import SettingsWidget from './pages/SettingsWidget';
 
 const { Header, Content, Footer } = Layout;
 
 class App extends React.Component {
-  
   // eslint-disable-next-line no-useless-constructor
   constructor(props) {
     super(props);
@@ -27,15 +26,23 @@ class App extends React.Component {
     /*global dorne_code_gen*/
     /*eslint no-undef: "error"*/
     dorne_code_gen.appUtils.initResources();
-    require('./theme/compact.css');
+    this.addStyle('/theme/default.css', 'antd-theme');
   }
+
+  addStyle = (url, id) => {
+    const style = document.createElement('link');
+    style.href = url;
+    style.rel = 'stylesheet';
+    style.async = true;
+    style.id = id;
+    document.head.appendChild(style);
+  };
 
   componentDidMount() {
     console.log('app componentDidMount');
     console.log(this.props);
     console.log('app end componentDidMount');
   }
-
 
   render() {
     let { component, routes = [] } = this.props;

@@ -2,9 +2,11 @@ import React from 'react';
 
 import { baseComponent } from '../components/hof/base';
 
-import { Button, Drawer, Form, Switch } from 'antd';
+import { Button, Drawer, Form, Switch, Select } from 'antd';
 
 import { SettingOutlined } from '@ant-design/icons';
+
+const { Option } = Select;
 
 const layout = {
   labelCol: {
@@ -25,15 +27,28 @@ class SettingsWidget extends React.Component {
     this.state = {};
   }
 
+  switchStyle = (url, id) => {
+    document.getElementById(id).remove();
+    const style = document.createElement('link');
+    style.href = url;
+    style.rel = 'stylesheet';
+    style.async = true;
+    style.id = id;
+    document.head.appendChild(style);
+  };
 
-  onDevToolsChange = (e) => {
-     /*global dorne_code_gen*/
+  selectChange = e => {
+    this.switchStyle(`/theme/${e}.css`, 'antd-theme');
+  }
+
+  onDevToolsChange = e => {
+    /*global dorne_code_gen*/
     /*eslint no-undef: "error"*/
     const electron = dorne_code_gen.electron;
     const remote = electron.remote;
     const webContents = remote.getCurrentWindow().webContents;
     e ? webContents.openDevTools() : webContents.closeDevTools();
-  }
+  };
 
   componentDidMount() {
     console.log('Demo componentDidMount');
@@ -82,6 +97,12 @@ class SettingsWidget extends React.Component {
                 unCheckedChildren="关闭"
                 onChange={this.onDevToolsChange}
               />
+            </Form.Item>
+            <Form.Item name="theme" label="主题"  defaultValue="default">
+              <Select style={{ width: 120 }} onChange={this.selectChange}>
+                <Option value="default">默认</Option>
+                <Option value="dark">暗黑</Option>
+              </Select>
             </Form.Item>
           </Form>
         </Drawer>
