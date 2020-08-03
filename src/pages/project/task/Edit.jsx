@@ -10,7 +10,7 @@ import 'ace-builds/src-noconflict/mode-jsx';
 import 'ace-builds/src-min-noconflict/ext-searchbox';
 import 'ace-builds/src-min-noconflict/ext-language_tools';
 
-import { Form, Input, Button, Select, Tooltip, Drawer, message, Switch } from 'antd';
+import { Row, Col, Form, Input, Button, Select, Tooltip, Drawer, message, Switch } from 'antd';
 
 import * as sd from 'silly-datetime';
 
@@ -94,6 +94,9 @@ class Edit extends React.Component {
       drawerVisible: false,
       code: '',
       tabSize: '2',
+      codePreview: '',
+      columnsCache: null,
+      projectDataCache: null,
     };
   }
 
@@ -188,6 +191,8 @@ class Edit extends React.Component {
   drawerClose = () => {
     this.setState({
       drawerVisible: false,
+      columnsCache: null,
+      projectDataCache: null
     });
   };
 
@@ -196,10 +201,12 @@ class Edit extends React.Component {
       drawerVisible: true,
     });
     this.refs.reactAceComponent.editor.focus();
+    this.onDrawerAceEditorChange(this.formRef.current.getFieldValue('code'));
   };
 
   drawerAceEditorFixHeight = () => {
     this.refs.reactAceComponent.editor.resize();
+    this.refs.reactAcePreviewComponent.editor.resize();
   };
 
   onAceEditorChange = v => {
@@ -208,10 +215,56 @@ class Edit extends React.Component {
     });
   };
 
-  onDrawerAceEditorChange = v => {
+  onDrawerAceEditorChange = async v => {
+    this.setState({
+      code: v
+    })
     this.formRef.current.setFieldsValue({
       code: v,
     });
+
+    const folderName = this.props.match.params.folderName;
+
+    let projectData = this.state.projectDataCache;
+    if(!this.state.projectDataCache){
+      projectData = folderName ? dorne_code_gen.appUtils.getProject(folderName) : {};
+    }
+
+    const filterData = projectData.filterData ? projectData.filterData : [];
+    const tablePrefix = projectData.tablePrefix;
+
+    const db = dorne_code_gen.appUtils.databaseAddon(projectData.database);
+
+    if (!filterData || filterData.length < 1) {
+      this.setState({
+        codePreview: '请配置候选表'
+      })
+    } else {
+      let table = filterData[0];
+      table.convertName = table.name;
+      if (tablePrefix && table.name.startsWith(tablePrefix)) {
+        table.convertName = table.name.substr(tablePrefix.length, table.name.length);
+      }
+
+      let columns = [];
+      try {
+        columns = this.state.columnsCache;
+        if(!this.state.columnsCache){
+          columns = await db.getColumns(projectData.uri, table.name);
+        }
+        
+        const text = dorne_code_gen.appUtils.artTemplate().render(v, {
+          table: table,
+          columns: columns,
+        });
+  
+        this.setState({
+          codePreview: text,
+          columnsCache: columns,
+          projectDataCache: projectData
+        })
+      } catch (e) {}
+    }
   };
 
   browserFolder = () => {
@@ -399,30 +452,61 @@ class Edit extends React.Component {
           visible={this.state.drawerVisible}
           onClose={this.drawerClose}
         >
-          <AceEditor
-            placeholder="请编写代码"
-            mode={this.state.codeLang}
-            value={this.state.code}
-            theme="monokai"
-            name="drawer_code_editor"
-            onChange={this.onDrawerAceEditorChange}
-            onBlur={this.drawerAceEditorFixHeight}
-            onFocus={this.drawerAceEditorFixHeight}
-            fontSize={14}
-            showPrintMargin={false}
-            showGutter={true}
-            highlightActiveLine={true}
-            style={{ width: '100%', height: '100%' }}
-            ref="reactAceComponent"
-            tabSize={parseInt(this.state.tabSize)}
-            useSoftTabs={true}
-            setOptions={{
-              enableBasicAutocompletion: true,
-              enableLiveAutocompletion: true,
-              enableSnippets: true,
-              showLineNumbers: true,
-            }}
-          />
+          <>
+            <Row>
+              <Col span={12} className="code-edit-col">
+                <AceEditor
+                  placeholder="请编写代码"
+                  mode={this.state.codeLang}
+                  value={this.state.code}
+                  theme="monokai"
+                  name="drawer_code_editor"
+                  onChange={this.onDrawerAceEditorChange}
+                  onBlur={this.drawerAceEditorFixHeight}
+                  onFocus={this.drawerAceEditorFixHeight}
+                  fontSize={14}
+                  showPrintMargin={false}
+                  showGutter={true}
+                  highlightActiveLine={true}
+                  style={{ width: '100%', height: '100%' }}
+                  ref="reactAceComponent"
+                  tabSize={parseInt(this.state.tabSize)}
+                  useSoftTabs={true}
+                  setOptions={{
+                    enableBasicAutocompletion: true,
+                    enableLiveAutocompletion: true,
+                    enableSnippets: true,
+                    showLineNumbers: true,
+                  }}
+                />
+              </Col>
+              <Col span={12} className="code-edit-col">
+                <AceEditor
+                  placeholder="请编写代码"
+                  mode={this.state.codeLang}
+                  value={this.state.codePreview}
+                  theme="monokai"
+                  name="drawer_code_preview"
+                  onBlur={this.drawerAceEditorFixHeight}
+                  onFocus={this.drawerAceEditorFixHeight}
+                  fontSize={14}
+                  showPrintMargin={false}
+                  showGutter={true}
+                  highlightActiveLine={true}
+                  style={{ width: '100%', height: '100%' }}
+                  ref="reactAcePreviewComponent"
+                  tabSize={parseInt(this.state.tabSize)}
+                  useSoftTabs={true}
+                  setOptions={{
+                    enableBasicAutocompletion: true,
+                    enableLiveAutocompletion: true,
+                    enableSnippets: true,
+                    showLineNumbers: true,
+                  }}
+                />
+              </Col>
+            </Row>
+          </>
         </Drawer>
       </React.Fragment>
     );

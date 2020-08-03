@@ -66,3 +66,7 @@ body {
   flex-direction: column;
   cursor: pointer;
 }
+
+.code-edit-col{
+  height: calc(100vh - 110px);     
+}
