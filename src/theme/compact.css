@@ -1,0 +1,23 @@
+@import '~antd/dist/antd.compact.css';
+
+.logo {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* 自定义 */
+
+body {
+  background-color: #f0f2f5;
+}
+
+.logo-text {
+  background: rgba(0, 0, 0, 0);
+  color: #fafafa;
+}
+
+#components-layout-demo-fixed .logo {
+  background: rgba(255, 255, 255, 0.2);
+}
+.site-layout .site-layout-background {
+  background: #fff;
+}

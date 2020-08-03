@@ -1,0 +1,18 @@
+@import '~antd/dist/antd.dark.css';
+
+
+
+/* 自定义 */
+
+body {
+  background-color: #000;
+}
+
+.logo-text {
+  background: rgba(0, 0, 0, 0);
+  color: #fafafa;
+}
+
+.site-layout .site-layout-background {
+  background: #141414;
+}

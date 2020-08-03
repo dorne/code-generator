@@ -27,6 +27,7 @@ class App extends React.Component {
     /*global dorne_code_gen*/
     /*eslint no-undef: "error"*/
     dorne_code_gen.appUtils.initResources();
+    require('./theme/compact.css');
   }
 
   componentDidMount() {
