@@ -288,7 +288,7 @@ class App extends React.Component {
             <Breadcrumb.Item>应用</Breadcrumb.Item>
             <Breadcrumb.Item>项目</Breadcrumb.Item>
           </Breadcrumb>
-          <div className="site-layout-background" style={{ padding: 24, minHeight: 790 }}>
+          <div className="site-layout-background" style={{ padding: 24 }}>
             <Space style={{ marginBottom: 16 }}>
               <Button type="primary" icon={<PlusOutlined />}>
                 添加

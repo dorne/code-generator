@@ -90,7 +90,7 @@ class App extends React.Component {
               );
             })}
           </Breadcrumb>
-          <div className="site-layout-background" style={{ padding: 24, minHeight: 790 }}>
+          <div className="site-layout-background" style={{ padding: 24 }}>
             <RouterSwitch>
               {mainRoutes.map(route => {
                 return <Route key={route.path} {...route} />;

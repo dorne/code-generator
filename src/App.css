@@ -36,6 +36,7 @@ body {
 }
 .site-layout .site-layout-background {
   background: #fff;
+  min-height: calc(100vh - 190px);     
 }
 
 .build-modal .ant-modal-footer{
