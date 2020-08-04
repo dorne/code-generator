@@ -32,7 +32,7 @@ function createWindow() {
         label: 'Edit',
         submenu: [
           { label: 'Copy', accelerator: 'CmdOrCtrl+C', selector: 'copy:' },
-          { label: 'Paste', accelerator: 'CmdOrCtrl+X', selector: 'cut:' },
+          { label: 'Cut', accelerator: 'CmdOrCtrl+X', selector: 'cut:' },
           { label: 'Paste', accelerator: 'CmdOrCtrl+V', selector: 'paste:' },
         ],
       },
@@ -43,9 +43,9 @@ function createWindow() {
         ],
       },
     ];
-    Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+    // Menu.setApplicationMenu(Menu.buildFromTemplate(template));
   } else {
-    Menu.setApplicationMenu(null);
+    // Menu.setApplicationMenu(null);
   }
 
   // Create the browser window.
@@ -62,7 +62,7 @@ function createWindow() {
     // frame: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
-      devTools: isDev ? true : false,
+      devTools: isDev ? true : true,
       enableRemoteModule: true
     },
   });

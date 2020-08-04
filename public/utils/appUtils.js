@@ -210,16 +210,35 @@ var artTemplate = function () {
   return art;
 };
 
-
-var defaultTemplate = function(){
+var defaultTemplate = function () {
   var project = `/${appFolder}/template/default.tpl`;
   var source = path.join(homedir, project);
   return fs.readFileSync(source, 'utf8');
-}
+};
 
-var readFile = function(source){
+var readFile = function (source) {
   return fs.readFileSync(source, 'utf8');
-}
+};
+
+var switchTheme = function (cssPath, id) {
+  var idObject = document.getElementById(id);
+  if (idObject != null) idObject.parentNode.removeChild(idObject);
+  
+  const style = document.createElement('link');
+  const isDev = require('electron-is-dev');
+
+  if (isDev) {
+    style.href = path.join('/resources', cssPath);
+  } else {
+    const _path = resourcesPath(cssPath);
+    style.href = `file://${_path}`;
+  }
+
+  style.rel = 'stylesheet';
+  style.async = true;
+  style.id = id;
+  document.head.appendChild(style);
+};
 
 module.exports = {
   getProjectList,
@@ -232,5 +251,6 @@ module.exports = {
   artTemplate,
   initResources,
   defaultTemplate,
-  readFile
+  readFile,
+  switchTheme,
 };

@@ -27,18 +27,8 @@ class SettingsWidget extends React.Component {
     this.state = {};
   }
 
-  switchStyle = (url, id) => {
-    document.getElementById(id).remove();
-    const style = document.createElement('link');
-    style.href = url;
-    style.rel = 'stylesheet';
-    style.async = true;
-    style.id = id;
-    document.head.appendChild(style);
-  };
-
   selectChange = e => {
-    this.switchStyle(`/theme/${e}.css`, 'antd-theme');
+    dorne_code_gen.appUtils.switchTheme(`theme/${e}.css`, 'antd-theme');
   }
 
   onDevToolsChange = e => {
