@@ -1,5 +1,8 @@
 @import './antd/antd.dark.css';
 
+::-webkit-scrollbar{width:6px;background:transparent;}
+::-webkit-scrollbar-thumb{background:#ccc;border-radius: 6px;}
+
 /* 自定义 */
 
 body {
