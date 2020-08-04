@@ -1,5 +1,9 @@
 @import '~antd/dist/antd.css';
 
+a {
+  -webkit-user-drag: none;
+}
+
 .logo {
   width: 120px;
   height: 31px;

@@ -38,14 +38,12 @@ function createWindow() {
       },
       {
         label: 'Selection',
-        submenu: [
-          { label: 'Copy', accelerator: 'CmdOrCtrl+A', selector: 'selectAll:' },
-        ],
+        submenu: [{ label: 'Select All', accelerator: 'CmdOrCtrl+A', selector: 'selectAll:' }],
       },
     ];
-    // Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+    Menu.setApplicationMenu(Menu.buildFromTemplate(template));
   } else {
-    // Menu.setApplicationMenu(null);
+    Menu.setApplicationMenu(null);
   }
 
   // Create the browser window.
@@ -62,8 +60,8 @@ function createWindow() {
     // frame: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
-      devTools: isDev ? true : true,
-      enableRemoteModule: true
+      //devTools: isDev ? true : false,
+      enableRemoteModule: true,
     },
   });
 
@@ -112,24 +110,65 @@ app.on('activate', function () {
 app.on('browser-window-focus', () => {
   if (!mainWindow) return;
 
-  if (process.platform === 'darwin') {
-    let contents = mainWindow.webContents;
+  globalShortcut.register('F12', () => {
+    console.log('F12');
+    return false;
+  });
+  globalShortcut.register('F5', () => {
+    console.log('F5');
+    return false;
+  });
 
-    globalShortcut.register('CommandOrControl+C', () => {
-      contents.copy();
-    });
+  if (!isDev) {
+    if (process.platform === 'darwin') {
+      // let contents = mainWindow.webContents;
+      // globalShortcut.register('CommandOrControl+C', () => {
+      //   contents.copy();
+      //   console.log('CommandOrControl+C');
+      // });
 
-    globalShortcut.register('CommandOrControl+V', () => {
-      contents.paste();
-    });
+      // globalShortcut.register('CommandOrControl+V', () => {
+      //   contents.paste();
+      //   console.log('CommandOrControl+V');
+      // });
 
-    globalShortcut.register('CommandOrControl+X', () => {
-      contents.cut();
-    });
+      // globalShortcut.register('CommandOrControl+X', () => {
+      //   contents.cut();
+      //   console.log('CommandOrControl+X');
+      // });
 
-    globalShortcut.register('CommandOrControl+A', () => {
-      contents.selectAll();
-    });
+      // globalShortcut.register('CommandOrControl+A', () => {
+      //   contents.selectAll();
+      //   console.log('CommandOrControl+A');
+      // });
+
+      globalShortcut.register('Command+R', () => {
+        console.log('Command+R');
+        return false;
+      });
+      globalShortcut.register('Shift+Command+R', () => {
+        console.log('Shift+Command+R');
+        return false;
+      });
+      globalShortcut.register('Option+Command+I', () => {
+        console.log('Option+Command+I');
+        return false;
+      });
+    }
+    if (process.platform === 'win32') {
+      globalShortcut.register('Control+R', () => {
+        console.log('Control+R');
+        return false;
+      });
+      globalShortcut.register('Control+Shift+R', () => {
+        console.log('Control+Shift+R');
+        return false;
+      });
+      globalShortcut.register('Control+Shift+I', () => {
+        console.log('Control+Shift+I');
+        return false;
+      });
+    }
   }
 });
 
