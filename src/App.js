@@ -26,7 +26,8 @@ class App extends React.Component {
     /*global dorne_code_gen*/
     /*eslint no-undef: "error"*/
     dorne_code_gen.appUtils.initResources();
-    this.addStyle('/theme/default.css', 'antd-theme');
+    // this.addStyle('/theme/default.css', 'antd-theme');
+    this.addStyle('/theme/dark.css', 'antd-theme');
   }
 
   addStyle = (url, id) => {
