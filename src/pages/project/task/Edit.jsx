@@ -249,6 +249,12 @@ class Edit extends React.Component {
 
     const filterData = projectData.filterData ? projectData.filterData : [];
     const tablePrefix = projectData.tablePrefix;
+    const _env = [];
+    if(projectData.env !== undefined){
+      projectData.env.forEach(function (value, key, arr) {
+        _env[value.key] = value.value
+      });
+    }
 
     const db = dorne_code_gen.appUtils.databaseAddon(projectData.database);
 
@@ -274,8 +280,16 @@ class Edit extends React.Component {
         const saveName = dorne_code_gen.appUtils.artTemplate().render(this.formRef.current.getFieldValue('saveName'), {
           table: table,
           columns: columns,
+          env: _env
         });
-        const path = dorne_code_gen.path.join(this.formRef.current.getFieldValue('savePath'), `/${saveName}`);
+        const savePath = dorne_code_gen.appUtils.artTemplate().render(this.formRef.current.getFieldValue('savePath'), {
+          table: table,
+          columns: columns,
+          env: _env
+        });
+
+        const path = dorne_code_gen.path.join(savePath, `/${saveName}`);
+
         if (dorne_code_gen.fs.existsSync(path)) {
           //找到已经生成过的文件
           const retainCode = this.formRef.current.getFieldValue('retainCode');
@@ -296,6 +310,7 @@ class Edit extends React.Component {
         const text = dorne_code_gen.appUtils.artTemplate().render(v, {
           table: table,
           columns: columns,
+          env: _env,
           retainCode: _retainCode
         });
 

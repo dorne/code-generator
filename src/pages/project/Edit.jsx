@@ -14,6 +14,7 @@ import {
   PlusOutlined,
   SendOutlined,
   FieldTimeOutlined,
+  MinusCircleOutlined
 } from '@ant-design/icons';
 
 import Highlighter from 'react-highlight-words';
@@ -136,7 +137,7 @@ class Edit extends React.Component {
       ),
   });
 
-  taskBuild = async (task = null, table = null) => {
+  taskBuild = async (folderName, task = null, table = null) => {
     this.setState({
       buildPercent: 0,
       buildMsg: '加载中',
@@ -162,48 +163,64 @@ class Edit extends React.Component {
       }
     };
 
-    const build = (task, table, columns) => {
+    const build = (folderName, task, table, columns) => {
       try {
-
         let _retainCode = {};
+
+        const _project = dorne_code_gen.appUtils.getProject(this.state.folderName);
+        const _env = [];
+        if(_project.env !== undefined){
+          _project.env.forEach(function (value, key, arr) {
+            _env[value.key] = value.value
+          });
+        }
 
         const saveName = dorne_code_gen.appUtils.artTemplate().render(task.saveName, {
           table: table,
           columns: columns,
+          env: _env
         });
 
-        if (!dorne_code_gen.fs.existsSync(task.savePath)) {
-          dorne_code_gen.fs.mkdirSync(task.savePath, { recursive: true });
+        const _path = dorne_code_gen.appUtils.artTemplate().render(task.savePath, {
+          table: table,
+          columns: columns,
+          env: _env
+        });
+        if (!dorne_code_gen.fs.existsSync(_path)) {
+          dorne_code_gen.fs.mkdirSync(_path, { recursive: true });
         }
-        const path = dorne_code_gen.path.join(task.savePath, `/${saveName}`);
+        const path = dorne_code_gen.path.join(_path, `/${saveName}`);
 
         if (dorne_code_gen.fs.existsSync(path)) {
           //找到已经生成过的文件
           const retainCode = task.retainCode ? task.retainCode : [];
-          retainCode.forEach(function(element) {
+          retainCode.forEach(function (element) {
             let b = element.begin;
             let e = element.end;
 
-            var matchReg = new RegExp( `(?<=${b})[\\s\\S]*?(?=${e})`, "g");
+            var matchReg = new RegExp(`(?<=${b})[\\s\\S]*?(?=${e})`, 'g');
 
             let oldCode = dorne_code_gen.appUtils.readFile(path);
             const _txt = oldCode.match(matchReg);
             //获取要保留的代码
 
-            _retainCode[element.var] = (_txt && _txt.length > 0 ? _txt[0] : '').replace(/(^\s*)/g, "").replace(/(\s*$)/g, "");
+            _retainCode[element.var] = (_txt && _txt.length > 0 ? _txt[0] : '')
+              .replace(/(^\s*)/g, '')
+              .replace(/(\s*$)/g, '');
           });
         }
 
         const text = dorne_code_gen.appUtils.artTemplate().render(task.code, {
           table: table,
           columns: columns,
-          retainCode: _retainCode
+          env: _env,
+          retainCode: _retainCode,
         });
 
         dorne_code_gen.fs.writeFileSync(path, text, 'utf-8');
         return { code: 1, msg: '模版生成成功' };
       } catch (err) {
-        console.error(err)
+        console.error(err);
         return { code: 0, msg: err.message };
       }
     };
@@ -244,7 +261,7 @@ class Edit extends React.Component {
       console.log(tablePrefix);
 
       if (task) {
-        const _build = build(task, table, columns);
+        const _build = build(folderName, task, table, columns);
         if (_build.code) {
           buildPercent(index, _filterData.length);
           this.setState({ buildMsg: `[${task.name}]任务正在生成[${table.name}]表` });
@@ -266,7 +283,7 @@ class Edit extends React.Component {
         for (let _index in p.state.taskData) {
           let _task = p.state.taskData[_index];
           if (_task.isRun) {
-            const _build = build(_task, table, columns);
+            const _build = build(folderName, _task, table, columns);
             if (_build.code) {
               setTimeout(() => {
                 this.setState({ buildMsg: `[${_task.name}]任务正在生成[${table.name}]表` });
@@ -389,7 +406,7 @@ class Edit extends React.Component {
                   shape="circle"
                   size="small"
                   icon={<SendOutlined />}
-                  onClick={this.taskBuild.bind(this, record, null)}
+                  onClick={this.taskBuild.bind(this, this.state.folderName, record, null)}
                 />
               </Tooltip>
               <Tooltip title="配置">
@@ -452,7 +469,7 @@ class Edit extends React.Component {
                   shape="circle"
                   size="small"
                   icon={<SendOutlined />}
-                  onClick={this.taskBuild.bind(this, null, record)}
+                  onClick={this.taskBuild.bind(this, this.state.folderName, null, record)}
                 />
               </Tooltip>
               <Popconfirm
@@ -1026,6 +1043,70 @@ class Edit extends React.Component {
                 />
               </Panel>
             ) : null}
+
+            {this.state.editMode ? (
+              <Panel header="环境变量" forceRender={true} key="6">
+                <Form.Item label="环境变量">
+                  <Form.List name="env">
+                    {(fields, { add, remove }) => {
+                      return (
+                        <div>
+                          {fields.map(field => (
+                            <Space
+                              key={field.key}
+                              style={{ display: 'flex', marginBottom: 0 }}
+                              align="start"
+                            >
+                              <Form.Item
+                                {...field}
+                                name={[field.name, 'memo']}
+                                fieldKey={[field.fieldKey, 'memo']}
+                              >
+                                <Input placeholder="描述说明" />
+                              </Form.Item>
+                              <Form.Item
+                                {...field}
+                                name={[field.name, 'key']}
+                                fieldKey={[field.fieldKey, 'key']}
+                              >
+                                <Input placeholder="键" />
+                              </Form.Item>
+                              <Form.Item
+                                {...field}
+                                name={[field.name, 'value']}
+                                fieldKey={[field.fieldKey, 'value']}
+                              >
+                                <Input placeholder="值" />
+                              </Form.Item>
+                        
+                              <MinusCircleOutlined
+                                style={{ marginTop: 10 }}
+                                onClick={() => {
+                                  remove(field.name);
+                                }}
+                              />
+                            </Space>
+                          ))}
+
+                          <Form.Item style={{ marginBottom: 0 }}>
+                            <Button
+                              type="dashed"
+                              onClick={() => {
+                                add();
+                              }}
+                              block
+                            >
+                              <PlusOutlined /> Add field
+                            </Button>
+                          </Form.Item>
+                        </div>
+                      );
+                    }}
+                  </Form.List>
+                </Form.Item>
+              </Panel>
+            ) : null}
+
             {this.state.editMode ? (
               <Panel header="任务" forceRender={true} key="5">
                 <Space style={{ marginBottom: 16 }}>
@@ -1071,7 +1152,7 @@ class Edit extends React.Component {
                   </Popconfirm>
                   <Button
                     icon={<FieldTimeOutlined />}
-                    onClick={this.taskBuild.bind(this, null, null)}
+                    onClick={this.taskBuild.bind(this, this.state.folderName, null, null)}
                   >
                     批量生成
                   </Button>
