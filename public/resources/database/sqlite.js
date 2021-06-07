@@ -38,7 +38,8 @@ exports.getColumns = async function (uri, table) {
   const sequelize = new dorne_code_gen.Sequelize(uri);
   
   const columns = await sequelize.query(
-    `SELECT * FROM PRAGMA_TABLE_INFO('${table}');`,
+    //`SELECT * FROM PRAGMA_TABLE_INFO('${table}');`,
+    `SELECT name as comment, name as name, type as type FROM PRAGMA_TABLE_INFO('${table}');`,
     { type: sequelize.QueryTypes.SELECT },
   );
   sequelize.close();
