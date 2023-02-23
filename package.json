@@ -33,7 +33,7 @@
     "redux": "^4.0.5",
     "redux-logger": "^3.0.6",
     "rmdir": "^1.2.0",
-    "sequelize": "^6.2.3",
+    "sequelize": "^6.28.2",
     "silly-datetime": "^0.1.2",
     "sqlite3": "^4.2.0",
     "tedious": "^8.3.0"
